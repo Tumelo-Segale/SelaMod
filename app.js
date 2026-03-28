@@ -967,19 +967,20 @@ function renderActivities() {
   });
 }
 
-// ---- Booking Form (contact section) ----
-window.resetBookingForm = function () {
-  $("bookingSuccess").classList.add("hidden");
-  $("bookingForm").classList.remove("hidden");
+// ---- Contact Form ----
+window.resetContactForm = function () {
+  $("contactSuccess").classList.add("hidden");
+  $("contactForm").classList.remove("hidden");
 };
-$("bookingForm").addEventListener("submit", (e) => {
+$("contactForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
-  btn.textContent = "Processing...";
+  btn.textContent = "Sending...";
   btn.disabled = true;
+  // Simulate sending (you can replace with actual AJAX if needed)
   setTimeout(() => {
-    $("bookingForm").classList.add("hidden");
-    $("bookingSuccess").classList.remove("hidden");
+    $("contactForm").classList.add("hidden");
+    $("contactSuccess").classList.remove("hidden");
     btn.textContent = "Send Inquiry";
     btn.disabled = false;
   }, 800);

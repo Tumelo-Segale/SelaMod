@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Selamod Guest House</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="shortcut icon" href="logo.png" type="image/x-icon">
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
@@ -250,7 +249,7 @@
                 </svg>
                 <div>
                   <h5 class="info-label">Location</h5>
-                  <p class="info-text">828 matshela-pata chaneng, <br />Rustenburg, Northwest</p>
+                  <p class="info-text">828 matshela - pata chaneng, <br />Rustenburg, Northwest</p>
                 </div>
               </div>
               <div class="contact-item">
@@ -276,48 +275,32 @@
             </div>
           </div>
           <div class="booking-form-wrap fade-in-scroll">
-            <form id="bookingForm">
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Full Name</label>
-                  <input type="text" class="form-input dark" id="bfName" placeholder="Your full name" required />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Email Address</label>
-                  <input type="email" class="form-input dark" id="bfEmail" placeholder="your@email.com" required />
-                </div>
+            <form id="contactForm">
+              <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input dark" id="cfName" required placeholder="Your full name" />
               </div>
               <div class="form-group">
-                <label class="form-label">Select Suite</label>
-                <select class="form-input dark form-select" id="bfRoom">
-                  <option value="The Sunflower Suite">The Sunflower Suite</option>
-                  <option value="Olive Garden Villa">Olive Garden Villa</option>
-                  <option value="Sand Dune Studio">Sand Dune Studio</option>
-                </select>
+                <label class="form-label">Email Address</label>
+                <input type="email" class="form-input dark" id="cfEmail" required placeholder="your@email.com" />
               </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">Check-In</label>
-                  <input type="date" class="form-input dark" id="bfCheckIn" required />
-                </div>
-                <div class="form-group">
-                  <label class="form-label">Check-Out</label>
-                  <input type="date" class="form-input dark" id="bfCheckOut" required />
-                </div>
+              <div class="form-group">
+                <label class="form-label">Message</label>
+                <textarea class="form-input dark" id="cfMessage" rows="4" required
+                  placeholder="How can we help you?"></textarea>
               </div>
               <button type="submit" class="btn-sunflower btn-full">Send Inquiry</button>
             </form>
-            <div class="booking-success hidden" id="bookingSuccess">
+            <div class="booking-success hidden" id="contactSuccess">
               <div class="success-icon">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <polygon
                     points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                 </svg>
               </div>
-              <h3>Inquiry Received</h3>
-              <p>Thank you for choosing Selamod. Our concierge will contact you shortly to finalize your reservation.
-              </p>
-              <button class="btn-text-gold" onclick="resetBookingForm()">Send Another Inquiry</button>
+              <h3>Message Sent</h3>
+              <p>Thank you for reaching out. Our team will get back to you as soon as possible.</p>
+              <button class="btn-text-gold" onclick="resetContactForm()">Send Another Message</button>
             </div>
           </div>
         </div>
