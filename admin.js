@@ -52,7 +52,7 @@ function renderBookings() {
 
   if (!bookings.length) {
     tbody.innerHTML =
-      '<tr><td colspan="8" class="empty-state">No bookings yet.</td></tr>';
+      '<tr><td colspan="5" class="empty-state">No bookings yet.</td></tr>';
     totalBookingsSpan.innerText = "0";
     totalRevenueSpan.innerText = "0";
     return;
@@ -62,18 +62,13 @@ function renderBookings() {
   const rows = bookings
     .map((booking) => {
       totalRevenue += booking.totalPrice || 0;
-      const bookedDate = booking.bookingDate
-        ? new Date(booking.bookingDate).toLocaleDateString()
-        : "-";
-      return `<tr><td>${booking.id || "—"}</td><td>${escapeHtml(
-        booking.userName || "Guest"
-      )}</td><td>${escapeHtml(booking.roomType || "—")}</td><td>${
-        booking.checkIn || "—"
-      }</td><td>${booking.checkOut || "—"}</td><td>${
-        booking.nights || 0
-      }</td><td><strong>R${
-        booking.totalPrice || 0
-      }</strong></td><td>${bookedDate}</td></tr>`;
+      return `<tr>
+          <td>${escapeHtml(booking.userName || "Guest")}</td>
+          <td>${escapeHtml(booking.roomType || "—")}</td>
+          <td>${booking.checkIn || "—"}</td>
+          <td>${booking.checkOut || "—"}</td>
+          <td><strong>R${booking.totalPrice || 0}</strong></td>
+        </tr>`;
     })
     .join("");
 
@@ -90,21 +85,18 @@ function renderUsers() {
 
   if (!users.length) {
     tbody.innerHTML =
-      '<tr><td colspan="5" class="empty-state">No registered users yet.</td></tr>';
+      '<tr><td colspan="3" class="empty-state">No registered users yet.</td></tr>';
     totalUsersSpan.innerText = "0";
     return;
   }
 
   const rows = users
     .map((user) => {
-      const joinedDate = user.createdAt
-        ? new Date(user.createdAt).toLocaleDateString()
-        : "-";
-      return `<tr><td>${user.id || "—"}</td><td>${escapeHtml(
-        user.name || "—"
-      )}</td><td>${escapeHtml(user.email || "—")}</td><td>${escapeHtml(
-        user.phone || "—"
-      )}</td><td>${joinedDate}</td></tr>`;
+      return `<tr>
+          <td>${escapeHtml(user.name || "—")}</td>
+          <td>${escapeHtml(user.email || "—")}</td>
+          <td>${escapeHtml(user.phone || "—")}</td>
+        </tr>`;
     })
     .join("");
 

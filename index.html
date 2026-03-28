@@ -367,12 +367,6 @@
             <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
           </svg>
         </a>
-        <button id="adminLoginFooterBtn" class="social-btn" aria-label="Admin Login" style="cursor:pointer;">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
-        </button>
       </div>
     </div>
     <div class="footer-copy">© 2026 Selamod Guest House. All Rights Reserved.</div>
@@ -383,29 +377,6 @@
     <div class="modal auth-modal" id="authModal">
       <button class="modal-close" id="authClose">&times;</button>
       <div id="authContent"></div>
-    </div>
-  </div>
-
-  <!-- ===== ADMIN LOGIN MODAL ===== -->
-  <div class="modal-backdrop hidden" id="adminAuthBackdrop">
-    <div class="modal auth-modal" id="adminAuthModal">
-      <button class="modal-close" id="adminAuthClose">&times;</button>
-      <div id="adminAuthContent">
-        <h2>Admin Login</h2>
-        <p class="auth-sub">Secure access to management panel</p>
-        <form class="auth-form" id="adminLoginForm">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" class="form-input" id="adminLoginEmail" required placeholder="admin@admin.com" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Password</label>
-            <input type="password" class="form-input" id="adminLoginPassword" required placeholder="••••••••" />
-          </div>
-          <div class="auth-error hidden" id="adminAuthError"></div>
-          <button type="submit" class="btn-sunflower btn-full">Login as Admin</button>
-        </form>
-      </div>
     </div>
   </div>
 
