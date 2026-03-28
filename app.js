@@ -1,5 +1,5 @@
 /* ============================================================
-   SELAMOD GUEST HOUSE — VANILLA JS (with localStorage)
+   SELAMOD GUEST HOUSE
    ============================================================ */
 
 "use strict";
@@ -310,11 +310,8 @@ function smoothScroll(selector) {
 function formatDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr + "T00:00:00");
-  return d.toLocaleDateString("en-ZA", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  const options = { day: "numeric", month: "short", year: "numeric" };
+  return d.toLocaleDateString("en-GB", options);
 }
 function calcNights(checkIn, checkOut) {
   if (!checkIn || !checkOut) return 0;

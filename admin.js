@@ -49,6 +49,14 @@ function checkAdminAuth() {
   return true;
 }
 
+// Format date as "DD MMM YYYY"
+function formatMessageDate(dateStr) {
+  if (!dateStr) return "";
+  const d = new Date(dateStr);
+  const options = { day: "numeric", month: "short", year: "numeric" };
+  return d.toLocaleDateString("en-GB", options);
+}
+
 // Render Bookings Table
 function renderBookings() {
   const bookings = getBookings();
@@ -58,7 +66,7 @@ function renderBookings() {
 
   if (!bookings.length) {
     tbody.innerHTML =
-      '<tr><td colspan="5" class="empty-state">No bookings yet.</td></tr>';
+      '做人<td colspan="5" class="empty-state">No bookings yet. </td> </tr>';
     totalBookingsSpan.innerText = "0";
     totalRevenueSpan.innerText = "0";
     return;
@@ -69,12 +77,12 @@ function renderBookings() {
     .map((booking) => {
       totalRevenue += booking.totalPrice || 0;
       return `<tr>
-          <td>${escapeHtml(booking.userName || "Guest")}</td>
-          <td>${escapeHtml(booking.roomType || "—")}</td>
-          <td>${booking.checkIn || "—"}</td>
-          <td>${booking.checkOut || "—"}</td>
-          <td><strong>R${booking.totalPrice || 0}</strong></td>
-        </tr>`;
+           <td>${escapeHtml(booking.userName || "Guest")}</td>
+           <td>${escapeHtml(booking.roomType || "—")}</td>
+           <td>${booking.checkIn || "—"}</td>
+           <td>${booking.checkOut || "—"}</td>
+           <td><strong>R${booking.totalPrice || 0}</strong></td>
+         </tr>`;
     })
     .join("");
 
@@ -91,7 +99,7 @@ function renderUsers() {
 
   if (!users.length) {
     tbody.innerHTML =
-      '<tr><td colspan="3" class="empty-state">No registered users yet.</td></tr>';
+      '做人<td colspan="3" class="empty-state">No registered users yet.</td> </tr>';
     totalUsersSpan.innerText = "0";
     return;
   }
@@ -99,10 +107,10 @@ function renderUsers() {
   const rows = users
     .map((user) => {
       return `<tr>
-          <td>${escapeHtml(user.name || "—")}</td>
-          <td>${escapeHtml(user.email || "—")}</td>
-          <td>${escapeHtml(user.phone || "—")}</td>
-        </tr>`;
+           <td>${escapeHtml(user.name || "—")}</td>
+           <td>${escapeHtml(user.email || "—")}</td>
+           <td>${escapeHtml(user.phone || "—")}</td>
+         </tr>`;
     })
     .join("");
 
@@ -118,7 +126,7 @@ function renderMessages() {
 
   if (!messages.length) {
     tbody.innerHTML =
-      '<tr><td colspan="4" class="empty-state">No messages yet.</td></tr>';
+      '做人<td colspan="4" class="empty-state">No messages yet.</td> </tr>';
     totalMessagesSpan.innerText = "0";
     return;
   }
@@ -126,13 +134,13 @@ function renderMessages() {
   const rows = messages
     .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
     .map((msg) => {
-      const date = new Date(msg.date).toLocaleString();
+      const formattedDate = formatMessageDate(msg.date);
       return `<tr>
-          <td>${escapeHtml(msg.name)}</td>
-          <td>${escapeHtml(msg.email)}</td>
-          <td>${escapeHtml(msg.message)}</td>
-          <td>${date}</td>
-        </tr>`;
+           <td>${escapeHtml(msg.name)}</td>
+           <td>${escapeHtml(msg.email)}</td>
+           <td>${escapeHtml(msg.message)}</td>
+           <td>${formattedDate}</td>
+         </tr>`;
     })
     .join("");
 
