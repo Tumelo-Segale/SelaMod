@@ -204,6 +204,7 @@ const STORAGE_KEYS = {
   ADMIN: "selamod_admin",
   ADMIN_SESSION: "selamod_admin_logged_in",
   CURRENT_USER: "selamod_user",
+  MESSAGES: "selamod_messages",
 };
 
 // ---- Helper Functions ----
@@ -243,6 +244,17 @@ function saveBooking(booking) {
   const bookings = getBookings();
   bookings.push(booking);
   localStorage.setItem(STORAGE_KEYS.BOOKINGS, JSON.stringify(bookings));
+}
+
+function getMessages() {
+  const messages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+  return messages ? JSON.parse(messages) : [];
+}
+
+function saveMessage(message) {
+  const messages = getMessages();
+  messages.push(message);
+  localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
 }
 
 function getAdmin() {
@@ -975,9 +987,24 @@ window.resetContactForm = function () {
 $("contactForm").addEventListener("submit", (e) => {
   e.preventDefault();
   const btn = e.target.querySelector("button[type=submit]");
+  const name = $("cfName").value.trim();
+  const email = $("cfEmail").value.trim();
+  const message = $("cfMessage").value.trim();
+  if (!name || !email || !message) {
+    alert("Please fill in all fields.");
+    return;
+  }
   btn.textContent = "Sending...";
   btn.disabled = true;
-  // Simulate sending (you can replace with actual AJAX if needed)
+  // Save message to localStorage
+  const msgObj = {
+    id: Date.now(),
+    name: name,
+    email: email,
+    message: message,
+    date: new Date().toISOString(),
+  };
+  saveMessage(msgObj);
   setTimeout(() => {
     $("contactForm").classList.add("hidden");
     $("contactSuccess").classList.remove("hidden");

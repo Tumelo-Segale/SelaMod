@@ -4,6 +4,7 @@ const STORAGE_KEYS = {
   BOOKINGS: "selamod_bookings",
   ADMIN: "selamod_admin",
   ADMIN_SESSION: "selamod_admin_logged_in",
+  MESSAGES: "selamod_messages",
 };
 
 // Helper functions
@@ -15,6 +16,11 @@ function getUsers() {
 function getBookings() {
   const bookings = localStorage.getItem(STORAGE_KEYS.BOOKINGS);
   return bookings ? JSON.parse(bookings) : [];
+}
+
+function getMessages() {
+  const messages = localStorage.getItem(STORAGE_KEYS.MESSAGES);
+  return messages ? JSON.parse(messages) : [];
 }
 
 function getAdmin() {
@@ -104,6 +110,36 @@ function renderUsers() {
   totalUsersSpan.innerText = users.length;
 }
 
+// Render Messages Table
+function renderMessages() {
+  const messages = getMessages();
+  const tbody = document.getElementById("messagesTableBody");
+  const totalMessagesSpan = document.getElementById("totalMessages");
+
+  if (!messages.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="4" class="empty-state">No messages yet.</td></tr>';
+    totalMessagesSpan.innerText = "0";
+    return;
+  }
+
+  const rows = messages
+    .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
+    .map((msg) => {
+      const date = new Date(msg.date).toLocaleString();
+      return `<tr>
+          <td>${escapeHtml(msg.name)}</td>
+          <td>${escapeHtml(msg.email)}</td>
+          <td>${escapeHtml(msg.message)}</td>
+          <td>${date}</td>
+        </tr>`;
+    })
+    .join("");
+
+  tbody.innerHTML = rows;
+  totalMessagesSpan.innerText = messages.length;
+}
+
 // Load admin email into settings form
 function loadAdminSettings() {
   const admin = getAdmin();
@@ -152,6 +188,7 @@ function initTabs() {
       document.getElementById(`tab-${target}`).classList.add("active");
       if (target === "bookings") renderBookings();
       if (target === "users") renderUsers();
+      if (target === "messages") renderMessages();
     });
   });
 }
@@ -176,6 +213,7 @@ function initAdminPanel() {
 
   renderBookings();
   renderUsers();
+  renderMessages();
   loadAdminSettings();
   initTabs();
 
