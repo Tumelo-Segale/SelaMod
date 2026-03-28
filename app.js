@@ -218,6 +218,17 @@ function saveUser(user) {
   localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
 }
 
+function updateUserPassword(email, newPassword) {
+  const users = getUsers();
+  const userIndex = users.findIndex((u) => u.email === email);
+  if (userIndex !== -1) {
+    users[userIndex].password = newPassword;
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+    return true;
+  }
+  return false;
+}
+
 function getUserByEmail(email) {
   const users = getUsers();
   return users.find((u) => u.email === email);
@@ -275,6 +286,7 @@ let bookingData = null;
 let currentView = "home";
 let openRoom = null;
 let roomModalCurrentImg = 0;
+let forgotEmail = null; // store email during forgot password flow
 
 function $(id) {
   return document.getElementById(id);
@@ -401,9 +413,11 @@ $("heroBookBtn").addEventListener("click", () => {
 
 // ---- Auth Modal ----
 let authMode = "signin";
+let forgotStep = 1; // 1: email input, 2: new password
 
 function openAuthModal() {
   authMode = "signin";
+  forgotStep = 1;
   renderAuthModal();
   $("authBackdrop").classList.remove("hidden");
 }
@@ -434,10 +448,18 @@ function renderAuthModal() {
             <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Create Account</button>
             <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Already have an account? Sign In</button></div></form>`;
   } else if (authMode === "forgot") {
-    content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Enter your email to receive a reset link</p>
+    if (forgotStep === 1) {
+      content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Enter your registered email</p>
             <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-            <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Send Reset Link</button>
+            <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Verify Email</button>
             <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Back to Sign In</button></div></form>`;
+    } else if (forgotStep === 2) {
+      content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Set a new password for ${forgotEmail}</p>
+            <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
+            <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="afConfirm" required placeholder="Confirm new password" /></div>
+            <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Update Password</button>
+            <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Cancel</button></div></form>`;
+    }
   }
   setTimeout(() => {
     const form = $("authForm");
@@ -447,6 +469,8 @@ function renderAuthModal() {
 window.switchAuthMode = switchAuthMode;
 function switchAuthMode(mode) {
   authMode = mode;
+  forgotStep = 1;
+  forgotEmail = null;
   renderAuthModal();
 }
 
@@ -459,19 +483,72 @@ function handleAuthSubmit(e) {
   errorEl.classList.add("hidden");
 
   if (authMode === "forgot") {
-    const email = $("afEmail").value.trim();
-    if (!email) {
-      errorEl.textContent = "Please enter your email.";
-      errorEl.classList.remove("hidden");
-      btn.textContent = "Send Reset Link";
+    if (forgotStep === 1) {
+      // Step 1: verify email exists
+      const email = $("afEmail").value.trim();
+      if (!email) {
+        errorEl.textContent = "Please enter your email.";
+        errorEl.classList.remove("hidden");
+        btn.textContent = "Verify Email";
+        btn.disabled = false;
+        return;
+      }
+      // Check if email exists in users (regular users only, not admin)
+      const admin = getAdmin();
+      if (email === admin.email) {
+        errorEl.textContent =
+          "Admin password cannot be reset here. Please contact support.";
+        errorEl.classList.remove("hidden");
+        btn.textContent = "Verify Email";
+        btn.disabled = false;
+        return;
+      }
+      const user = getUserByEmail(email);
+      if (!user) {
+        errorEl.textContent = "No account found with that email.";
+        errorEl.classList.remove("hidden");
+        btn.textContent = "Verify Email";
+        btn.disabled = false;
+        return;
+      }
+      // Email exists, proceed to step 2
+      forgotEmail = email;
+      forgotStep = 2;
+      renderAuthModal();
+      btn.textContent = "Update Password";
       btn.disabled = false;
-      return;
+    } else if (forgotStep === 2) {
+      // Step 2: update password
+      const newPwd = $("afPassword").value;
+      const confirmPwd = $("afConfirm").value;
+      if (!newPwd || newPwd.length < 6) {
+        errorEl.textContent = "Password must be at least 6 characters.";
+        errorEl.classList.remove("hidden");
+        btn.textContent = "Update Password";
+        btn.disabled = false;
+        return;
+      }
+      if (newPwd !== confirmPwd) {
+        errorEl.textContent = "Passwords do not match.";
+        errorEl.classList.remove("hidden");
+        btn.textContent = "Update Password";
+        btn.disabled = false;
+        return;
+      }
+      // Update user password
+      const success = updateUserPassword(forgotEmail, newPwd);
+      if (success) {
+        // Show success and redirect to signin
+        $(
+          "authContent"
+        ).innerHTML = `<div class="auth-verified"><div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3>Password Updated</h3><p>Your password has been successfully reset. You can now sign in with your new password.</p><button class="btn-charcoal btn-full" onclick="switchAuthMode('signin')">Go to Sign In</button></div>`;
+      } else {
+        errorEl.textContent = "Something went wrong. Please try again.";
+        errorEl.classList.remove("hidden");
+        btn.textContent = "Update Password";
+        btn.disabled = false;
+      }
     }
-    setTimeout(() => {
-      $(
-        "authContent"
-      ).innerHTML = `<div class="auth-verified"><div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div><h3>Reset Email Sent</h3><p>We've sent a password reset link to your inbox. Please check and follow the instructions.</p><button class="btn-charcoal btn-full" onclick="switchAuthMode('signin')">Go to Sign In</button></div>`;
-    }, 900);
     return;
   }
 
