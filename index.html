@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Selamod Guest House</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav id="navbar">
+    <div class="nav-inner">
+      <button class="nav-logo" id="logoBtn">
+        <div class="logo-dot-outer">
+          <div class="logo-dot-inner"></div>
+        </div>
+        SELAMOD GUEST HOUSE
+      </button>
+      <div class="nav-links" id="navLinks">
+        <button class="nav-link" data-view="home" data-href="#">Home</button>
+        <button class="nav-link" data-view="home" data-href="#rooms">Rooms</button>
+        <button class="nav-link" data-view="home" data-href="#gallery">Gallery</button>
+        <button class="nav-link" data-view="home" data-href="#activities">Activities</button>
+        <button class="nav-link" data-view="home" data-href="#about">About</button>
+        <button class="nav-link" data-view="home" data-href="#contact">Contact</button>
+      </div>
+      <div class="nav-actions">
+        <button class="btn-signin" id="navSignInBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+          Sign In
+        </button>
+      </div>
+      <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+      <button class="mobile-link" data-view="home" data-href="#">Home</button>
+      <button class="mobile-link" data-view="home" data-href="#rooms">Rooms</button>
+      <button class="mobile-link" data-view="home" data-href="#gallery">Gallery</button>
+      <button class="mobile-link" data-view="home" data-href="#activities">Activities</button>
+      <button class="mobile-link" data-view="home" data-href="#about">About</button>
+      <button class="mobile-link" data-view="home" data-href="#contact">Contact</button>
+      <div class="mobile-footer">
+        <button class="btn-signin" id="mobileSignInBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+          Sign In
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===== HOME VIEW ===== -->
+  <div id="view-home" class="view active">
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg">
+        <img src="https://i.ibb.co/23txcnMg/668293214.jpg" alt="Luxury Guesthouse" class="hero-img" loading="eager" />
+        <div class="hero-overlay"></div>
+      </div>
+      <div class="hero-content">
+        <span class="hero-eyebrow">Welcome to Selamod Guest House</span>
+        <h1 class="hero-title">The Art of <br /><em>Serene Living</em></h1>
+        <div class="hero-actions">
+          <button class="btn-outline" onclick="smoothScroll('#rooms')">
+            Explore Rooms
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+          <button class="btn-primary" id="heroBookBtn">
+            Book Now
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="section section-cream text-center">
+      <div class="container-sm">
+        <div class="fade-in-scroll">
+          <span class="eyebrow">Our Philosophy</span>
+          <h2 class="section-title">A sanctuary where <br /><em>nature meets luxury</em></h2>
+          <p class="section-body mx-auto" style="max-width:38rem;">
+            Selamod Guest House is more than just a guesthouse; it's a curated experience designed to awaken your
+            senses. Inspired by the warmth of the sun and the resilience of the sunflower, we offer a retreat that
+            balances modern elegance with organic tranquility.
+          </p>
+          <div class="stats-grid">
+            <div>
+              <h4 class="stat-num">12</h4>
+              <p class="stat-label">Bespoke Suites</p>
+            </div>
+            <div>
+              <h4 class="stat-num">24/7</h4>
+              <p class="stat-label">Personal Concierge</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <section class="section section-beige">
+      <div class="container">
+        <div class="section-header text-center fade-in-scroll">
+          <h2 class="section-title">Curated Amenities</h2>
+          <div class="divider-line"></div>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card fade-in-scroll">
+            <div class="feature-img-wrap"><img src="https://i.ibb.co/bjnn1cPB/630756880.jpg" alt="Private Bar"
+                loading="lazy" /></div>
+            <div class="feature-body">
+              <div class="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 8h1a4 4 0 0 1 0 8h-1" />
+                  <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z" />
+                  <line x1="6" y1="1" x2="6" y2="4" />
+                  <line x1="10" y1="1" x2="10" y2="4" />
+                  <line x1="14" y1="1" x2="14" y2="4" />
+                </svg>
+              </div>
+              <h3>Private Bar</h3>
+              <p>Premium selections and sunset cocktails in an intimate, sophisticated setting.</p>
+            </div>
+          </div>
+          <div class="feature-card fade-in-scroll">
+            <div class="feature-img-wrap"><img src="https://i.ibb.co/bgr4XYSH/622898719.jpg" alt="Conferencing"
+                loading="lazy" /></div>
+            <div class="feature-body">
+              <div class="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <h3>Conferencing</h3>
+              <p>Professional spaces equipped for corporate retreats, meetings, and strategic gatherings.</p>
+            </div>
+          </div>
+          <div class="feature-card fade-in-scroll">
+            <div class="feature-img-wrap"><img src="https://i.ibb.co/hF54NkS3/668293285.jpg" alt="Safe Parking"
+                loading="lazy" /></div>
+            <div class="feature-body">
+              <div class="feature-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <h3>Safe Parking</h3>
+              <p>Secure, monitored parking facilities for your peace of mind throughout your stay.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ROOMS -->
+    <section id="rooms" class="section section-cream">
+      <div class="container">
+        <div class="rooms-header fade-in-scroll">
+          <div>
+            <span class="eyebrow">Accommodation</span>
+            <h2 class="section-title">Refined Suites</h2>
+          </div>
+          <button class="btn-text" id="viewAllRoomsBtn">View All Rooms</button>
+        </div>
+        <div class="rooms-grid" id="homeRoomsGrid"></div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="section section-beige">
+      <div class="container">
+        <div class="section-header text-center fade-in-scroll">
+          <h2 class="section-title">Visual Journey</h2>
+          <p class="section-subhead">Moments captured at Selamod</p>
+        </div>
+        <div class="gallery-grid">
+          <div class="gallery-item gi-large fade-in-scroll">
+            <img src="https://i.ibb.co/ymV2hyqQ/Events6.jpg" alt="Events 6" loading="lazy" />
+          </div>
+          <div class="gallery-item gi-tall fade-in-scroll">
+            <img src="https://i.ibb.co/BDKVzFN/Events7.jpg" alt="Events 7" loading="lazy" />
+          </div>
+          <div class="gallery-item fade-in-scroll">
+            <img src="https://i.ibb.co/rK6nxN4b/Events9.jpg" alt="Events 9" loading="lazy" />
+          </div>
+          <div class="gallery-item fade-in-scroll">
+            <img src="https://i.ibb.co/23txcnMg/668293214.jpg" alt="Gallery" loading="lazy" />
+          </div>
+          <div class="gallery-item gi-wide fade-in-scroll">
+            <img src="https://i.ibb.co/bjnn1cPB/630756880.jpg" alt="Bar" loading="lazy" />
+          </div>
+          <div class="gallery-item gi-wide fade-in-scroll">
+            <img src="https://i.ibb.co/bgr4XYSH/622898719.jpg" alt="Conferencing" loading="lazy" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ACTIVITIES -->
+    <section id="activities" class="section section-cream">
+      <div class="container">
+        <div class="section-header text-center fade-in-scroll" style="margin-bottom:6rem;">
+          <span class="eyebrow" style="letter-spacing:.7em;font-size:9px;">Explore the Region</span>
+          <h2 class="activities-title">Local Activities</h2>
+          <div class="divider-line" style="width:160px;height:1.5px;"></div>
+        </div>
+        <div class="activities-grid" id="activitiesGrid"></div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section section-charcoal">
+      <div class="container">
+        <div class="contact-grid">
+          <div class="fade-in-scroll">
+            <h2 class="contact-title">Begin your <br /><em class="text-sunflower">unforgettable</em> stay</h2>
+            <div class="contact-info">
+              <div class="contact-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                <div>
+                  <h5 class="info-label">Location</h5>
+                  <p class="info-text">828 matshela - pata chaneng, <br />Rustenburg, Northwest</p>
+                </div>
+              </div>
+              <div class="contact-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.17h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+                <div>
+                  <h5 class="info-label">Reservations</h5>
+                  <p class="info-text">082 937 4899</p>
+                </div>
+              </div>
+              <div class="contact-item">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+                <div>
+                  <h5 class="info-label">Inquiries</h5>
+                  <p class="info-text">sela@selamodvgh.co.za</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="booking-form-wrap fade-in-scroll">
+            <form id="bookingForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" class="form-input dark" id="bfName" placeholder="Your full name" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" class="form-input dark" id="bfEmail" placeholder="your@email.com" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Select Suite</label>
+                <select class="form-input dark form-select" id="bfRoom">
+                  <option value="The Sunflower Suite">The Sunflower Suite</option>
+                  <option value="Olive Garden Villa">Olive Garden Villa</option>
+                  <option value="Sand Dune Studio">Sand Dune Studio</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Check-In</label>
+                  <input type="date" class="form-input dark" id="bfCheckIn" required />
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Check-Out</label>
+                  <input type="date" class="form-input dark" id="bfCheckOut" required />
+                </div>
+              </div>
+              <button type="submit" class="btn-sunflower btn-full">Send Inquiry</button>
+            </form>
+            <div class="booking-success hidden" id="bookingSuccess">
+              <div class="success-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polygon
+                    points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+              </div>
+              <h3>Inquiry Received</h3>
+              <p>Thank you for choosing Selamod. Our concierge will contact you shortly to finalize your reservation.
+              </p>
+              <button class="btn-text-gold" onclick="resetBookingForm()">Send Another Inquiry</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- end view-home -->
+
+  <!-- ===== ROOMS VIEW ===== -->
+  <div id="view-rooms" class="view">
+    <div class="rooms-page-wrap">
+      <div class="container">
+        <div class="section-header text-center fade-in-scroll" style="margin-bottom:4rem;">
+          <span class="eyebrow">Our Collection</span>
+          <h1 class="section-title" style="font-size:clamp(2.5rem,6vw,4rem);">All Rooms & Suites</h1>
+          <p class="section-body mx-auto" style="max-width:42rem;">Explore our diverse range of accommodations, each
+            designed with meticulous attention to detail.</p>
+        </div>
+        <div class="rooms-grid" id="allRoomsGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHECKOUT VIEW ===== -->
+  <div id="view-checkout" class="view">
+    <div class="checkout-wrap" id="checkoutWrap"></div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <div class="logo-dot-outer sm">
+          <div class="logo-dot-inner"></div>
+        </div>
+        SELAMOD GUEST HOUSE
+      </div>
+      <div class="footer-social">
+        <a href="#" class="social-btn" aria-label="Instagram">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="20" rx="5" />
+            <circle cx="12" cy="12" r="4" />
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+          </svg>
+        </a>
+        <a href="#" class="social-btn" aria-label="Facebook">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+          </svg>
+        </a>
+        <button id="adminLoginFooterBtn" class="social-btn" aria-label="Admin Login" style="cursor:pointer;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="footer-copy">© 2026 Selamod Guest House. All Rights Reserved.</div>
+  </footer>
+
+  <!-- ===== AUTH MODAL ===== -->
+  <div class="modal-backdrop hidden" id="authBackdrop">
+    <div class="modal auth-modal" id="authModal">
+      <button class="modal-close" id="authClose">&times;</button>
+      <div id="authContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== ADMIN LOGIN MODAL ===== -->
+  <div class="modal-backdrop hidden" id="adminAuthBackdrop">
+    <div class="modal auth-modal" id="adminAuthModal">
+      <button class="modal-close" id="adminAuthClose">&times;</button>
+      <div id="adminAuthContent">
+        <h2>Admin Login</h2>
+        <p class="auth-sub">Secure access to management panel</p>
+        <form class="auth-form" id="adminLoginForm">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-input" id="adminLoginEmail" required placeholder="admin@admin.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-input" id="adminLoginPassword" required placeholder="••••••••" />
+          </div>
+          <div class="auth-error hidden" id="adminAuthError"></div>
+          <button type="submit" class="btn-sunflower btn-full">Login as Admin</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== ROOM DETAIL MODAL ===== -->
+  <div class="modal-backdrop hidden" id="roomBackdrop">
+    <div class="modal room-modal" id="roomModal">
+      <button class="modal-close" id="roomClose">&times;</button>
+      <div id="roomModalContent"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
