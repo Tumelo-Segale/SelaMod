@@ -66,7 +66,7 @@ function renderBookings() {
 
   if (!bookings.length) {
     tbody.innerHTML =
-      '做人<td colspan="5" class="empty-state">No bookings yet. </td> </tr>';
+      '<td colspan="5" class="empty-state">No bookings yet. </td> </tr>';
     totalBookingsSpan.innerText = "0";
     totalRevenueSpan.innerText = "0";
     return;
@@ -99,7 +99,7 @@ function renderUsers() {
 
   if (!users.length) {
     tbody.innerHTML =
-      '做人<td colspan="3" class="empty-state">No registered users yet.</td> </tr>';
+      '<td colspan="3" class="empty-state">No registered users yet.</td> </tr>';
     totalUsersSpan.innerText = "0";
     return;
   }
@@ -126,7 +126,7 @@ function renderMessages() {
 
   if (!messages.length) {
     tbody.innerHTML =
-      '做人<td colspan="4" class="empty-state">No messages yet.</td> </tr>';
+      '<td colspan="4" class="empty-state">No messages yet.</td> </tr>';
     totalMessagesSpan.innerText = "0";
     return;
   }
