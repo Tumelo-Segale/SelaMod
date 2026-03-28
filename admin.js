@@ -5,9 +5,118 @@ const STORAGE_KEYS = {
   ADMIN: "selamod_admin",
   ADMIN_SESSION: "selamod_admin_logged_in",
   MESSAGES: "selamod_messages",
+  ROOMS: "selamod_rooms",
 };
 
-// Helper functions
+// Default rooms data
+const DEFAULT_ROOMS = [
+  {
+    id: "sunflower",
+    title: "The Sunflower Suite",
+    category: "Signature",
+    price: "R450",
+    priceNum: 450,
+    image: "https://i.ibb.co/mFyZQRDQ/165601429.jpg",
+    images: [
+      "https://i.ibb.co/mFyZQRDQ/165601429.jpg",
+      "https://i.ibb.co/v6HMrb60/622888285.jpg",
+      "https://i.ibb.co/VczRSyQX/207090929.jpg",
+      "https://i.ibb.co/gLWFrD3Q/196224013.jpg",
+    ],
+    description:
+      "Our flagship suite offering a perfect blend of luxury and comfort. Features a private balcony with stunning valley views, a spacious living area, and premium finishes throughout.",
+    bathroom: [
+      "Luxury Bathtub",
+      "Fresh Cotton Towels",
+      "Soft Tissues",
+      "Premium Toiletries (Soap, Shampoo, Lotion)",
+    ],
+    facilities: [
+      "Smart TV",
+      "Air Conditioning",
+      "Electric Kettle",
+      "Work Desk",
+      "Microwave",
+      "Spacious Closet/Wardrobe",
+    ],
+  },
+  {
+    id: "olive",
+    title: "Olive Garden Villa",
+    category: "Luxury",
+    price: "R620",
+    priceNum: 620,
+    image: "https://i.ibb.co/rRnj1g24/232551023.jpg",
+    images: [
+      "https://i.ibb.co/rRnj1g24/232551023.jpg",
+      "https://i.ibb.co/S4JF6MKZ/626363408.jpg",
+      "https://i.ibb.co/7NdKb09K/622888879.jpg",
+      "https://i.ibb.co/B5P5MMHw/626392395.jpg",
+      "https://i.ibb.co/DP7gbyNN/626364748.jpg",
+    ],
+    description:
+      "A secluded villa surrounded by lush greenery. Perfect for those seeking privacy and a deep connection with nature without compromising on modern amenities.",
+    bathroom: [
+      "Walk-in Rain Shower",
+      "Plush Towels",
+      "Facial Tissues",
+      "Organic Toiletry Set",
+    ],
+    facilities: [
+      "4K Smart TV",
+      "Climate Control",
+      "Nespresso Machine",
+      "Executive Desk",
+      "Microwave",
+      "Built-in Wardrobe",
+    ],
+  },
+  {
+    id: "sand-dune",
+    title: "Sand Dune Studio",
+    category: "Minimalist",
+    price: "R380",
+    priceNum: 380,
+    image: "https://i.ibb.co/vxMTmwWT/622887367.jpg",
+    images: [
+      "https://i.ibb.co/vxMTmwWT/622887367.jpg",
+      "https://i.ibb.co/kst9qBXN/622889766-1.jpg",
+      "https://i.ibb.co/NdRnvVBV/622890055.jpg",
+      "https://i.ibb.co/5xh4dhWP/622903064.jpg",
+      "https://i.ibb.co/mV6J5DPv/232551653.jpg",
+    ],
+    description:
+      "A sleek, modern studio designed for the contemporary traveler. Minimalist aesthetics combined with maximum functionality for a seamless stay.",
+    bathroom: [
+      "Modern Shower",
+      "Standard Towels",
+      "Tissues",
+      "Basic Toiletry Kit",
+    ],
+    facilities: [
+      "LED TV",
+      "Air Conditioning",
+      "Standard Kettle",
+      "Compact Desk",
+      "Microwave",
+      "Open Wardrobe System",
+    ],
+  },
+];
+
+// Helper functions for rooms
+function getRooms() {
+  const rooms = localStorage.getItem(STORAGE_KEYS.ROOMS);
+  if (rooms) return JSON.parse(rooms);
+  // Initialize default rooms
+  localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(DEFAULT_ROOMS));
+  return [...DEFAULT_ROOMS];
+}
+
+function saveRooms(rooms) {
+  localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(rooms));
+}
+
 function getUsers() {
   const users = localStorage.getItem(STORAGE_KEYS.USERS);
   return users ? JSON.parse(users) : [];
@@ -66,7 +175,7 @@ function renderBookings() {
 
   if (!bookings.length) {
     tbody.innerHTML =
-      '<td colspan="5" class="empty-state">No bookings yet. </td> </tr>';
+      '<tr><td colspan="5" class="empty-state">No bookings yet.</td></tr>';
     totalBookingsSpan.innerText = "0";
     totalRevenueSpan.innerText = "0";
     return;
@@ -77,12 +186,12 @@ function renderBookings() {
     .map((booking) => {
       totalRevenue += booking.totalPrice || 0;
       return `<tr>
-           <td>${escapeHtml(booking.userName || "Guest")}</td>
-           <td>${escapeHtml(booking.roomType || "—")}</td>
-           <td>${booking.checkIn || "—"}</td>
-           <td>${booking.checkOut || "—"}</td>
-           <td><strong>R${booking.totalPrice || 0}</strong></td>
-         </tr>`;
+            <td>${escapeHtml(booking.userName || "Guest")}</td>
+            <td>${escapeHtml(booking.roomType || "—")}</td>
+            <td>${booking.checkIn || "—"}</td>
+            <td>${booking.checkOut || "—"}</td>
+            <td><strong>R${booking.totalPrice || 0}</strong></td>
+          </tr>`;
     })
     .join("");
 
@@ -99,7 +208,7 @@ function renderUsers() {
 
   if (!users.length) {
     tbody.innerHTML =
-      '<td colspan="3" class="empty-state">No registered users yet.</td> </tr>';
+      '<tr><td colspan="3" class="empty-state">No registered users yet.</td></tr>';
     totalUsersSpan.innerText = "0";
     return;
   }
@@ -107,10 +216,10 @@ function renderUsers() {
   const rows = users
     .map((user) => {
       return `<tr>
-           <td>${escapeHtml(user.name || "—")}</td>
-           <td>${escapeHtml(user.email || "—")}</td>
-           <td>${escapeHtml(user.phone || "—")}</td>
-         </tr>`;
+            <td>${escapeHtml(user.name || "—")}</td>
+            <td>${escapeHtml(user.email || "—")}</td>
+            <td>${escapeHtml(user.phone || "—")}</td>
+          </tr>`;
     })
     .join("");
 
@@ -126,7 +235,7 @@ function renderMessages() {
 
   if (!messages.length) {
     tbody.innerHTML =
-      '<td colspan="4" class="empty-state">No messages yet.</td> </tr>';
+      '<tr><td colspan="4" class="empty-state">No messages yet.</td></tr>';
     totalMessagesSpan.innerText = "0";
     return;
   }
@@ -136,11 +245,11 @@ function renderMessages() {
     .map((msg) => {
       const formattedDate = formatMessageDate(msg.date);
       return `<tr>
-           <td>${escapeHtml(msg.name)}</td>
-           <td>${escapeHtml(msg.email)}</td>
-           <td>${escapeHtml(msg.message)}</td>
-           <td>${formattedDate}</td>
-         </tr>`;
+            <td>${escapeHtml(msg.name)}</td>
+            <td>${escapeHtml(msg.email)}</td>
+            <td>${escapeHtml(msg.message)}</td>
+            <td>${formattedDate}</td>
+          </tr>`;
     })
     .join("");
 
@@ -197,6 +306,7 @@ function initTabs() {
       if (target === "bookings") renderBookings();
       if (target === "users") renderUsers();
       if (target === "messages") renderMessages();
+      if (target === "rooms") renderRoomsList();
     });
   });
 }
@@ -212,7 +322,274 @@ function escapeHtml(str) {
   });
 }
 
-// Initialize admin panel
+// ==================== ROOMS MANAGEMENT ====================
+let currentEditingRoomId = null;
+let tempImageFiles = []; // base64 strings for new images during edit/add
+
+function renderRoomsList() {
+  const rooms = getRooms();
+  const container = document.getElementById("roomsListContainer");
+  if (!container) return;
+
+  if (!rooms.length) {
+    container.innerHTML =
+      '<div class="empty-state">No rooms yet. Click "Add New Room" to create one.</div>';
+    return;
+  }
+
+  const html = rooms
+    .map(
+      (room) => `
+    <div class="room-item" data-room-id="${room.id}">
+      <div class="room-item-image">
+        <img src="${room.image || room.images[0] || ""}" alt="${room.title}">
+      </div>
+      <div class="room-item-info">
+        <h4>${escapeHtml(room.title)}</h4>
+        <div class="room-category">${escapeHtml(room.category)}</div>
+        <div class="room-price">${room.price} / night</div>
+      </div>
+      <div class="room-item-actions">
+        <button class="edit-room" data-id="${room.id}">Edit</button>
+        <button class="delete-room" data-id="${room.id}">Delete</button>
+      </div>
+    </div>
+  `
+    )
+    .join("");
+
+  container.innerHTML = html;
+
+  // Add event listeners
+  document.querySelectorAll(".edit-room").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = btn.getAttribute("data-id");
+      openRoomModalForEdit(id);
+    });
+  });
+
+  document.querySelectorAll(".delete-room").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = btn.getAttribute("data-id");
+      if (
+        confirm(
+          "Are you sure you want to delete this room? This action cannot be undone."
+        )
+      ) {
+        deleteRoomById(id);
+      }
+    });
+  });
+}
+
+function deleteRoomById(id) {
+  const rooms = getRooms();
+  const updatedRooms = rooms.filter((r) => r.id !== id);
+  saveRooms(updatedRooms);
+  renderRoomsList();
+}
+
+function openRoomModalForEdit(id) {
+  const rooms = getRooms();
+  const room = rooms.find((r) => r.id === id);
+  if (room) {
+    currentEditingRoomId = id;
+    fillRoomForm(room);
+  } else {
+    currentEditingRoomId = null;
+    fillRoomForm(null);
+  }
+  document.getElementById("roomModalOverlay").classList.remove("hidden");
+  document.getElementById("roomModalTitle").innerText = currentEditingRoomId
+    ? "Edit Room"
+    : "Add New Room";
+}
+
+function fillRoomForm(room) {
+  if (room) {
+    document.getElementById("roomTitle").value = room.title || "";
+    document.getElementById("roomCategory").value = room.category || "";
+    document.getElementById("roomPriceNum").value = room.priceNum || "";
+    document.getElementById("roomDescription").value = room.description || "";
+    document.getElementById("roomBathroom").value = (room.bathroom || []).join(
+      "\n"
+    );
+    document.getElementById("roomFacilities").value = (
+      room.facilities || []
+    ).join("\n");
+    // Store images for preview
+    tempImageFiles = [...(room.images || [])];
+    renderImagePreviews();
+  } else {
+    document.getElementById("roomTitle").value = "";
+    document.getElementById("roomCategory").value = "";
+    document.getElementById("roomPriceNum").value = "";
+    document.getElementById("roomDescription").value = "";
+    document.getElementById("roomBathroom").value = "";
+    document.getElementById("roomFacilities").value = "";
+    tempImageFiles = [];
+    renderImagePreviews();
+  }
+}
+
+function renderImagePreviews() {
+  const container = document.getElementById("imagesPreviewContainer");
+  if (!container) return;
+  if (tempImageFiles.length === 0) {
+    container.innerHTML =
+      '<div class="empty-state" style="padding:1rem; font-size:0.8rem;">No images added yet.</div>';
+    return;
+  }
+  const html = tempImageFiles
+    .map(
+      (img, idx) => `
+    <div class="image-preview-item">
+      <img src="${img}" alt="Preview ${idx + 1}">
+      <button type="button" class="remove-img" data-idx="${idx}">&times;</button>
+    </div>
+  `
+    )
+    .join("");
+  container.innerHTML = html;
+  container.querySelectorAll(".remove-img").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const idx = parseInt(btn.getAttribute("data-idx"), 10);
+      tempImageFiles.splice(idx, 1);
+      renderImagePreviews();
+    });
+  });
+}
+
+function handleImageFiles(files) {
+  // Convert each file to base64
+  Array.from(files).forEach((file) => {
+    if (file.type.startsWith("image/")) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        tempImageFiles.push(e.target.result);
+        renderImagePreviews();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+}
+
+function saveRoomFromForm() {
+  const title = document.getElementById("roomTitle").value.trim();
+  const category = document.getElementById("roomCategory").value.trim();
+  const priceNum = parseFloat(document.getElementById("roomPriceNum").value);
+  const description = document.getElementById("roomDescription").value.trim();
+  const bathroomText = document.getElementById("roomBathroom").value;
+  const facilitiesText = document.getElementById("roomFacilities").value;
+
+  if (!title || !category || isNaN(priceNum) || priceNum <= 0 || !description) {
+    alert(
+      "Please fill in all required fields (Title, Category, Price, Description)."
+    );
+    return false;
+  }
+
+  const bathroom = bathroomText
+    .split("\n")
+    .filter((line) => line.trim() !== "");
+  const facilities = facilitiesText
+    .split("\n")
+    .filter((line) => line.trim() !== "");
+  const images = [...tempImageFiles];
+  if (images.length === 0) {
+    alert("Please add at least one image for the room.");
+    return false;
+  }
+
+  const rooms = getRooms();
+  const roomId =
+    currentEditingRoomId ||
+    title.toLowerCase().replace(/\s+/g, "-") + "-" + Date.now();
+
+  const newRoom = {
+    id: roomId,
+    title: title,
+    category: category,
+    price: `R${priceNum}`,
+    priceNum: priceNum,
+    image: images[0],
+    images: images,
+    description: description,
+    bathroom: bathroom,
+    facilities: facilities,
+  };
+
+  if (currentEditingRoomId) {
+    // Update existing
+    const index = rooms.findIndex((r) => r.id === currentEditingRoomId);
+    if (index !== -1) {
+      rooms[index] = newRoom;
+    }
+  } else {
+    // Add new
+    rooms.push(newRoom);
+  }
+
+  saveRooms(rooms);
+  return true;
+}
+
+// Initialize room management UI
+function initRoomManagement() {
+  const addBtn = document.getElementById("addNewRoomBtn");
+  if (addBtn) {
+    addBtn.addEventListener("click", () => {
+      currentEditingRoomId = null;
+      fillRoomForm(null);
+      document.getElementById("roomModalOverlay").classList.remove("hidden");
+      document.getElementById("roomModalTitle").innerText = "Add New Room";
+    });
+  }
+
+  const closeBtn = document.getElementById("closeRoomModalBtn");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      document.getElementById("roomModalOverlay").classList.add("hidden");
+    });
+  }
+
+  const cancelBtn = document.getElementById("cancelRoomBtn");
+  if (cancelBtn) {
+    cancelBtn.addEventListener("click", () => {
+      document.getElementById("roomModalOverlay").classList.add("hidden");
+    });
+  }
+
+  const overlay = document.getElementById("roomModalOverlay");
+  if (overlay) {
+    overlay.addEventListener("click", (e) => {
+      if (e.target === overlay) {
+        overlay.classList.add("hidden");
+      }
+    });
+  }
+
+  const fileInput = document.getElementById("roomImagesInput");
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      handleImageFiles(e.target.files);
+      fileInput.value = ""; // reset so same files can be selected again
+    });
+  }
+
+  const roomForm = document.getElementById("roomForm");
+  if (roomForm) {
+    roomForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      if (saveRoomFromForm()) {
+        document.getElementById("roomModalOverlay").classList.add("hidden");
+        renderRoomsList();
+      }
+    });
+  }
+}
+
+// ==================== INITIALIZE ====================
 function initAdminPanel() {
   if (!checkAdminAuth()) return;
 
@@ -222,8 +599,10 @@ function initAdminPanel() {
   renderBookings();
   renderUsers();
   renderMessages();
+  renderRoomsList();
   loadAdminSettings();
   initTabs();
+  initRoomManagement();
 
   document
     .getElementById("adminLogoutBtn")

@@ -1799,6 +1799,9 @@ select::placeholder,
 textarea::placeholder {
   color: #94a3b8;
 }
+textarea {
+  height: 140px;
+}
 
 /* Dark variant for contact form (light text on dark bg) */
 .form-input.dark {
