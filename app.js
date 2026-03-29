@@ -437,7 +437,7 @@ function signOut() {
 }
 $("heroBookBtn").addEventListener("click", () => {
   if (!currentUser) openAuthModal();
-  else smoothScroll("#contact");
+  else smoothScroll("#rooms");
 });
 
 // ---- Auth Modal ----
