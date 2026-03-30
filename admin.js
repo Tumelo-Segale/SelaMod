@@ -108,7 +108,6 @@ const DEFAULT_ROOMS = [
 function getRooms() {
   const rooms = localStorage.getItem(STORAGE_KEYS.ROOMS);
   if (rooms) return JSON.parse(rooms);
-  // Initialize default rooms
   localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(DEFAULT_ROOMS));
   return [...DEFAULT_ROOMS];
 }
@@ -135,7 +134,6 @@ function getMessages() {
 function getAdmin() {
   const admin = localStorage.getItem(STORAGE_KEYS.ADMIN);
   if (admin) return JSON.parse(admin);
-  // Default admin credentials
   const defaultAdmin = { email: "admin@admin.com", password: "admin123" };
   localStorage.setItem(STORAGE_KEYS.ADMIN, JSON.stringify(defaultAdmin));
   return defaultAdmin;
@@ -149,7 +147,6 @@ function isAdminLoggedIn() {
   return localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION) === "true";
 }
 
-// Redirect to index if not logged in
 function checkAdminAuth() {
   if (!isAdminLoggedIn()) {
     window.location.href = "index.html";
@@ -158,7 +155,6 @@ function checkAdminAuth() {
   return true;
 }
 
-// Format date as "DD MMM YYYY"
 function formatMessageDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
@@ -166,7 +162,6 @@ function formatMessageDate(dateStr) {
   return d.toLocaleDateString("en-GB", options);
 }
 
-// Render Bookings Table
 function renderBookings() {
   const bookings = getBookings();
   const tbody = document.getElementById("bookingsTableBody");
@@ -186,12 +181,12 @@ function renderBookings() {
     .map((booking) => {
       totalRevenue += booking.totalPrice || 0;
       return `<tr>
-             <td>${escapeHtml(booking.userName || "Guest")}</td>
-             <td>${escapeHtml(booking.roomType || "—")}</td>
-             <td>${booking.checkIn || "—"}</td>
-             <td>${booking.checkOut || "—"}</td>
-             <td><strong>R${booking.totalPrice || 0}</strong></td>
-           </tr>`;
+              <td>${escapeHtml(booking.userName || "Guest")}</td>
+              <td>${escapeHtml(booking.roomType || "—")}</td>
+              <td>${booking.checkIn || "—"}</td>
+              <td>${booking.checkOut || "—"}</td>
+              <td><strong>R${booking.totalPrice || 0}</strong></td>
+            </tr>`;
     })
     .join("");
 
@@ -200,7 +195,6 @@ function renderBookings() {
   totalRevenueSpan.innerText = `R${totalRevenue.toLocaleString()}`;
 }
 
-// Render Users Table
 function renderUsers() {
   const users = getUsers();
   const tbody = document.getElementById("usersTableBody");
@@ -216,10 +210,10 @@ function renderUsers() {
   const rows = users
     .map((user) => {
       return `<tr>
-             <td>${escapeHtml(user.name || "—")}</td>
-             <td>${escapeHtml(user.email || "—")}</td>
-             <td>${escapeHtml(user.phone || "—")}</td>
-           </tr>`;
+              <td>${escapeHtml(user.name || "—")}</td>
+              <td>${escapeHtml(user.email || "—")}</td>
+              <td>${escapeHtml(user.phone || "—")}</td>
+            </tr>`;
     })
     .join("");
 
@@ -227,7 +221,6 @@ function renderUsers() {
   totalUsersSpan.innerText = users.length;
 }
 
-// Render Messages Table
 function renderMessages() {
   const messages = getMessages();
   const tbody = document.getElementById("messagesTableBody");
@@ -241,15 +234,15 @@ function renderMessages() {
   }
 
   const rows = messages
-    .sort((a, b) => new Date(b.date) - new Date(a.date)) // newest first
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
     .map((msg) => {
       const formattedDate = formatMessageDate(msg.date);
       return `<tr>
-             <td>${escapeHtml(msg.name)}</td>
-             <td>${escapeHtml(msg.email)}</td>
-             <td>${escapeHtml(msg.message)}</td>
-             <td>${formattedDate}</td>
-           </tr>`;
+              <td>${escapeHtml(msg.name)}</td>
+              <td>${escapeHtml(msg.email)}</td>
+              <td>${escapeHtml(msg.message)}</td>
+              <td>${formattedDate}</td>
+            </tr>`;
     })
     .join("");
 
@@ -257,13 +250,11 @@ function renderMessages() {
   totalMessagesSpan.innerText = messages.length;
 }
 
-// Load admin email into settings form
 function loadAdminSettings() {
   const admin = getAdmin();
   document.getElementById("adminEmail").value = admin.email;
 }
 
-// Update admin credentials
 function updateAdminCredentials(email, newPassword) {
   const admin = getAdmin();
   const updatedAdmin = {
@@ -271,11 +262,8 @@ function updateAdminCredentials(email, newPassword) {
     password: newPassword || admin.password,
   };
   saveAdmin(updatedAdmin);
-
-  // Update session display
   document.getElementById("adminEmailDisplay").innerText = email;
 
-  // Show success message
   const alertDiv = document.getElementById("settingsAlert");
   alertDiv.innerHTML =
     '<div class="alert alert-success">Admin credentials updated successfully!</div>';
@@ -285,13 +273,11 @@ function updateAdminCredentials(email, newPassword) {
   return true;
 }
 
-// Logout
 function adminLogout() {
   localStorage.removeItem(STORAGE_KEYS.ADMIN_SESSION);
   window.location.href = "index.html";
 }
 
-// Tab switching
 function initTabs() {
   const tabs = document.querySelectorAll(".tab-btn");
   const panels = document.querySelectorAll(".tab-panel");
@@ -311,7 +297,6 @@ function initTabs() {
   });
 }
 
-// Helper to escape HTML
 function escapeHtml(str) {
   if (!str) return "";
   return str.replace(/[&<>]/g, function (m) {
@@ -322,9 +307,73 @@ function escapeHtml(str) {
   });
 }
 
+// ==================== IMAGE COMPRESSION ====================
+function compressImage(
+  file,
+  maxSizeMB = 0.5,
+  maxWidth = 1200,
+  maxHeight = 1200
+) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.match(/image\/(jpeg|png|webp)/)) {
+      reject(new Error("Unsupported image type"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        let quality = 0.85;
+
+        if (width > maxWidth || height > maxHeight) {
+          const ratio = Math.min(maxWidth / width, maxHeight / height);
+          width = Math.floor(width * ratio);
+          height = Math.floor(height * ratio);
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Start with high quality, reduce until file size is within limit
+        const maxBytes = maxSizeMB * 1024 * 1024;
+        let attempt = 0;
+        const tryCompression = (q) => {
+          canvas.toBlob(
+            (blob) => {
+              if (blob.size <= maxBytes || q <= 0.3) {
+                // Final result
+                const finalReader = new FileReader();
+                finalReader.onload = () => resolve(finalReader.result);
+                finalReader.onerror = reject;
+                finalReader.readAsDataURL(blob);
+              } else {
+                // Try lower quality
+                tryCompression(q - 0.05);
+              }
+            },
+            file.type,
+            q
+          );
+        };
+        tryCompression(quality);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // ==================== ROOMS MANAGEMENT ====================
 let currentEditingRoomId = null;
-let tempImageFiles = []; // base64 strings for new images during edit/add
+let tempImageFiles = [];
 
 function renderRoomsList() {
   const rooms = getRooms();
@@ -342,7 +391,9 @@ function renderRoomsList() {
       (room) => `
     <div class="room-item" data-room-id="${room.id}">
       <div class="room-item-image">
-        <img src="${room.image || room.images[0] || ""}" alt="${room.title}">
+        <img src="${room.image || room.images[0] || ""}" alt="${
+        room.title
+      }" loading="lazy">
       </div>
       <div class="room-item-info">
         <h4>${escapeHtml(room.title)}</h4>
@@ -360,7 +411,6 @@ function renderRoomsList() {
 
   container.innerHTML = html;
 
-  // Add event listeners
   document.querySelectorAll(".edit-room").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const id = btn.getAttribute("data-id");
@@ -417,7 +467,6 @@ function fillRoomForm(room) {
     document.getElementById("roomFacilities").value = (
       room.facilities || []
     ).join("\n");
-    // Store images for preview
     tempImageFiles = [...(room.images || [])];
     renderImagePreviews();
   } else {
@@ -444,7 +493,7 @@ function renderImagePreviews() {
     .map(
       (img, idx) => `
     <div class="image-preview-item">
-      <img src="${img}" alt="Preview ${idx + 1}">
+      <img src="${img}" alt="Preview ${idx + 1}" loading="lazy">
       <button type="button" class="remove-img" data-idx="${idx}">&times;</button>
     </div>
   `
@@ -460,18 +509,26 @@ function renderImagePreviews() {
   });
 }
 
-function handleImageFiles(files) {
-  // Convert each file to base64
-  Array.from(files).forEach((file) => {
-    if (file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        tempImageFiles.push(e.target.result);
-        renderImagePreviews();
-      };
-      reader.readAsDataURL(file);
+async function handleImageFiles(files) {
+  const compressionPromises = Array.from(files).map(async (file) => {
+    if (!file.type.match(/image\/(jpeg|png|webp)/)) return null;
+    try {
+      return await compressImage(file);
+    } catch (err) {
+      console.warn("Image compression failed:", err);
+      // Fallback: read as base64 without compression
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.readAsDataURL(file);
+      });
     }
   });
+  const compressed = await Promise.all(compressionPromises);
+  compressed.forEach((base64) => {
+    if (base64) tempImageFiles.push(base64);
+  });
+  renderImagePreviews();
 }
 
 function saveRoomFromForm() {
@@ -520,13 +577,11 @@ function saveRoomFromForm() {
   };
 
   if (currentEditingRoomId) {
-    // Update existing
     const index = rooms.findIndex((r) => r.id === currentEditingRoomId);
     if (index !== -1) {
       rooms[index] = newRoom;
     }
   } else {
-    // Add new
     rooms.push(newRoom);
   }
 
@@ -534,7 +589,6 @@ function saveRoomFromForm() {
   return true;
 }
 
-// Initialize room management UI
 function initRoomManagement() {
   const addBtn = document.getElementById("addNewRoomBtn");
   if (addBtn) {
@@ -572,8 +626,10 @@ function initRoomManagement() {
   const fileInput = document.getElementById("roomImagesInput");
   if (fileInput) {
     fileInput.addEventListener("change", (e) => {
-      handleImageFiles(e.target.files);
-      fileInput.value = ""; // reset so same files can be selected again
+      if (e.target.files.length) {
+        handleImageFiles(e.target.files);
+      }
+      fileInput.value = "";
     });
   }
 
