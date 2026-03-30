@@ -115,14 +115,8 @@ const DEFAULT_ROOMS = [
 function getRooms() {
   const stored = localStorage.getItem(STORAGE_KEYS.ROOMS);
   if (stored) return JSON.parse(stored);
-  // Initialize with defaults
   localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(DEFAULT_ROOMS));
   return [...DEFAULT_ROOMS];
-}
-
-// Helper to save rooms (if needed, but mainly admin will handle)
-function saveRooms(rooms) {
-  localStorage.setItem(STORAGE_KEYS.ROOMS, JSON.stringify(rooms));
 }
 
 let roomsData = getRooms();
@@ -224,9 +218,6 @@ const activitiesData = [
   },
 ];
 
-// ---- localStorage keys ----
-// (same as above, but already defined)
-
 // ---- Helper Functions ----
 function getUsers() {
   const users = localStorage.getItem(STORAGE_KEYS.USERS);
@@ -285,10 +276,6 @@ function getAdmin() {
   return defaultAdmin;
 }
 
-function saveAdmin(adminData) {
-  localStorage.setItem(STORAGE_KEYS.ADMIN, JSON.stringify(adminData));
-}
-
 function isAdminLoggedIn() {
   return localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION) === "true";
 }
@@ -318,7 +305,7 @@ let bookingData = null;
 let currentView = "home";
 let openRoom = null;
 let roomModalCurrentImg = 0;
-let forgotEmail = null; // store email during forgot password flow
+let forgotEmail = null;
 
 function $(id) {
   return document.getElementById(id);
@@ -431,9 +418,6 @@ function signOut() {
   if ($("roomBackdrop") && !$("roomBackdrop").classList.contains("hidden")) {
     closeRoomModal();
   }
-  if (currentView === "checkout" && !currentUser) {
-    showView("home");
-  }
 }
 $("heroBookBtn").addEventListener("click", () => {
   if (!currentUser) openAuthModal();
@@ -442,7 +426,7 @@ $("heroBookBtn").addEventListener("click", () => {
 
 // ---- Auth Modal ----
 let authMode = "signin";
-let forgotStep = 1; // 1: email input, 2: new password
+let forgotStep = 1;
 
 function openAuthModal() {
   authMode = "signin";
@@ -462,32 +446,32 @@ function renderAuthModal() {
   const content = $("authContent");
   if (authMode === "signin") {
     content.innerHTML = `<h2>Sign In</h2><p class="auth-sub">Welcome back to your sanctuary</p>
-               <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-               <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="••••••••" /></div>
-               <div style="text-align:right;margin-bottom:1rem;"><button type="button" class="forgot-btn" onclick="switchAuthMode('forgot')">Forgot Password?</button></div>
-               <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Sign In</button>
-               <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signup')">Don't have an account? Sign Up</button></div></form>`;
+                  <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
+                  <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="••••••••" /></div>
+                  <div style="text-align:right;margin-bottom:1rem;"><button type="button" class="forgot-btn" onclick="switchAuthMode('forgot')">Forgot Password?</button></div>
+                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Sign In</button>
+                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signup')">Don't have an account? Sign Up</button></div></form>`;
   } else if (authMode === "signup") {
     content.innerHTML = `<h2>Create Account</h2><p class="auth-sub">Join the Selamod family</p>
-               <form class="auth-form" id="authForm"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="afFirst" required /></div>
-               <div class="form-group"><label class="form-label">Surname</label><input type="text" class="form-input" id="afSurname" required /></div></div>
-               <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="afPhone" required /></div>
-               <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-               <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
-               <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Create Account</button>
-               <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Already have an account? Sign In</button></div></form>`;
+                  <form class="auth-form" id="authForm"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="afFirst" required /></div>
+                  <div class="form-group"><label class="form-label">Surname</label><input type="text" class="form-input" id="afSurname" required /></div></div>
+                  <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="afPhone" required /></div>
+                  <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
+                  <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
+                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Create Account</button>
+                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Already have an account? Sign In</button></div></form>`;
   } else if (authMode === "forgot") {
     if (forgotStep === 1) {
       content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Enter your registered email</p>
-               <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-               <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Verify Email</button>
-               <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Back to Sign In</button></div></form>`;
+                  <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
+                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Verify Email</button>
+                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Back to Sign In</button></div></form>`;
     } else if (forgotStep === 2) {
       content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Set a new password for ${forgotEmail}</p>
-               <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
-               <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="afConfirm" required placeholder="Confirm new password" /></div>
-               <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Update Password</button>
-               <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Cancel</button></div></form>`;
+                  <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
+                  <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="afConfirm" required placeholder="Confirm new password" /></div>
+                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Update Password</button>
+                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Cancel</button></div></form>`;
     }
   }
   setTimeout(() => {
@@ -513,7 +497,6 @@ function handleAuthSubmit(e) {
 
   if (authMode === "forgot") {
     if (forgotStep === 1) {
-      // Step 1: verify email exists
       const email = $("afEmail").value.trim();
       if (!email) {
         errorEl.textContent = "Please enter your email.";
@@ -522,7 +505,6 @@ function handleAuthSubmit(e) {
         btn.disabled = false;
         return;
       }
-      // Check if email exists in users (regular users only, not admin)
       const admin = getAdmin();
       if (email === admin.email) {
         errorEl.textContent =
@@ -540,14 +522,12 @@ function handleAuthSubmit(e) {
         btn.disabled = false;
         return;
       }
-      // Email exists, proceed to step 2
       forgotEmail = email;
       forgotStep = 2;
       renderAuthModal();
       btn.textContent = "Update Password";
       btn.disabled = false;
     } else if (forgotStep === 2) {
-      // Step 2: update password
       const newPwd = $("afPassword").value;
       const confirmPwd = $("afConfirm").value;
       if (!newPwd || newPwd.length < 6) {
@@ -564,10 +544,8 @@ function handleAuthSubmit(e) {
         btn.disabled = false;
         return;
       }
-      // Update user password
       const success = updateUserPassword(forgotEmail, newPwd);
       if (success) {
-        // Show success and redirect to signin
         $(
           "authContent"
         ).innerHTML = `<div class="auth-verified"><div class="success-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div><h3>Password Updated</h3><p>Your password has been successfully reset. You can now sign in with your new password.</p><button class="btn-charcoal btn-full" onclick="switchAuthMode('signin')">Go to Sign In</button></div>`;
@@ -602,7 +580,6 @@ function handleAuthSubmit(e) {
       return;
     }
 
-    // Prevent registration with admin email
     const admin = getAdmin();
     if (email === admin.email) {
       errorEl.textContent = "Cannot register with admin email.";
@@ -619,7 +596,6 @@ function handleAuthSubmit(e) {
       btn.disabled = false;
       return;
     }
-    // Create user
     const newUser = {
       id: Date.now(),
       name: `${first} ${surname}`,
@@ -629,7 +605,6 @@ function handleAuthSubmit(e) {
       createdAt: new Date().toISOString(),
     };
     saveUser(newUser);
-    // Auto sign in
     currentUser = { name: newUser.name, email: newUser.email };
     saveUserToLocal(currentUser);
     updateAuthNav();
@@ -657,16 +632,13 @@ function handleAuthSubmit(e) {
     return;
   }
 
-  // Check for admin login
   const admin = getAdmin();
   if (email === admin.email && pwd === admin.password) {
-    // Admin login: set session and redirect
     localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, "true");
     window.location.href = "admin.html";
     return;
   }
 
-  // Regular user login
   const user = getUserByEmail(email);
   if (!user || user.password !== pwd) {
     errorEl.textContent = "Invalid email or password.";
@@ -709,12 +681,11 @@ function createRoomCard(room, onClick) {
   const div = document.createElement("div");
   div.className = "room-card fade-in-scroll";
   div.innerHTML = `<div class="room-card-img"><img src="${room.image}" alt="${room.title}" loading="lazy" referrerpolicy="no-referrer" /><div class="room-badge">${room.category}</div></div>
-             <div class="room-card-info"><div><h3>${room.title}</h3><p>From ${room.price} / Night</p></div><div class="room-card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>`;
+                <div class="room-card-info"><div><h3>${room.title}</h3><p>From ${room.price} / Night</p></div><div class="room-card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>`;
   div.addEventListener("click", () => onClick(room));
   return div;
 }
 function renderRooms() {
-  // Refresh roomsData in case it changed in another tab
   roomsData = getRooms();
   const homeGrid = $("homeRoomsGrid");
   const allGrid = $("allRoomsGrid");
@@ -780,21 +751,21 @@ function renderRoomModal(room) {
       ? `<button class="gallery-btn gallery-prev" onclick="roomImgPrev()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><button class="gallery-btn gallery-next" onclick="roomImgNext()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button><div class="gallery-dots">${dots}</div>`
       : ""
   }<div class="room-category-badge">${room.category}</div></div>
-             <div class="room-modal-info"><h2>${
-               room.title
-             }</h2><p class="room-price">From ${
+                <div class="room-modal-info"><h2>${
+                  room.title
+                }</h2><p class="room-price">From ${
     room.price
   } / Night</p><div style="margin-bottom:2rem;"><p style="font-size:.875rem;color:rgba(26,26,26,.65);line-height:1.7;">${
     room.description
   }</p></div>
-             <div class="amenities-cols"><div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22H4a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3h1"/><path d="M7 22h10"/><path d="M17 22h3a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3h-1"/><rect x="9" y="10" width="6" height="10"/><circle cx="12" cy="7" r="3"/></svg> Bathroom Amenities</p><ul class="amenities-list">${bathItems}</ul></div>
-             <div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Room Facilities</p><ul class="amenities-list">${facItems}</ul></div></div>
-             <div class="booking-panel" id="roomBookPanel"><p class="amenities-label" style="margin-bottom:1rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Check Availability & Cost</p>
-             <div class="booking-dates"><div class="form-group"><label class="form-label">Check-In</label><input type="date" class="form-input" id="rmCheckIn" onchange="updateRoomPrice()" /></div><div class="form-group"><label class="form-label">Check-Out</label><input type="date" class="form-input" id="rmCheckOut" onchange="updateRoomPrice()" /></div></div>
-             <div class="price-summary hidden" id="priceSummary"><div class="price-row"><span class="label" id="pricePerNight"></span><span class="value" id="priceSubtotal"></span></div><div class="price-total"><span class="label">Total Stay Cost</span><span class="value" id="priceTotal"></span></div></div>
-             <button class="btn-charcoal btn-full" id="bookRoomBtn" onclick="handleBookRoom()">${
-               currentUser ? "Book This Room" : "Sign In to Book"
-             }</button></div></div>`;
+                <div class="amenities-cols"><div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22H4a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3h1"/><path d="M7 22h10"/><path d="M17 22h3a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3h-1"/><rect x="9" y="10" width="6" height="10"/><circle cx="12" cy="7" r="3"/></svg> Bathroom Amenities</p><ul class="amenities-list">${bathItems}</ul></div>
+                <div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Room Facilities</p><ul class="amenities-list">${facItems}</ul></div></div>
+                <div class="booking-panel" id="roomBookPanel"><p class="amenities-label" style="margin-bottom:1rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Check Availability & Cost</p>
+                <div class="booking-dates"><div class="form-group"><label class="form-label">Check-In</label><input type="date" class="form-input" id="rmCheckIn" onchange="updateRoomPrice()" /></div><div class="form-group"><label class="form-label">Check-Out</label><input type="date" class="form-input" id="rmCheckOut" onchange="updateRoomPrice()" /></div></div>
+                <div class="price-summary hidden" id="priceSummary"><div class="price-row"><span class="label" id="pricePerNight"></span><span class="value" id="priceSubtotal"></span></div><div class="price-total"><span class="label">Total Stay Cost</span><span class="value" id="priceTotal"></span></div></div>
+                <button class="btn-charcoal btn-full" id="bookRoomBtn" onclick="handleBookRoom()">${
+                  currentUser ? "Book This Room" : "Sign In to Book"
+                }</button></div></div>`;
   const today = new Date().toISOString().split("T")[0];
   const ciInput = $("rmCheckIn");
   const coInput = $("rmCheckOut");
@@ -840,6 +811,8 @@ function updateRoomPrice() {
   }
 }
 window.updateRoomPrice = updateRoomPrice;
+
+// ---- Paystack Integration ----
 function handleBookRoom() {
   if (!currentUser) {
     closeRoomModal();
@@ -853,86 +826,90 @@ function handleBookRoom() {
     alert("Please select valid check-in and check-out dates.");
     return;
   }
+
+  // Prepare booking data
+  const totalPrice = nights * openRoom.priceNum;
   bookingData = {
     roomType: openRoom.title,
     checkIn: ci,
     checkOut: co,
     nights,
-    totalPrice: nights * openRoom.priceNum,
+    totalPrice,
     userName: currentUser.name,
     userEmail: currentUser.email,
   };
-  closeRoomModal();
-  renderCheckout();
-  showView("checkout");
+
+  // Paystack public key (test key – replace with your own)
+  const paystackPublicKey = "pk_test_328d06e1e7acac75cab1175db7c135a8f1697132";
+
+  // Generate unique reference
+  const reference = `SELAMOD-${Date.now()}-${Math.floor(
+    Math.random() * 1000000
+  )}`;
+
+  // Open Paystack inline popup
+  const handler = PaystackPop.setup({
+    key: paystackPublicKey,
+    email: currentUser.email,
+    amount: totalPrice * 100, // Paystack expects amount in kobo (100 kobo = 1 ZAR)
+    currency: "ZAR",
+    ref: reference,
+    metadata: {
+      custom_fields: [
+        {
+          display_name: "Room",
+          variable_name: "room",
+          value: bookingData.roomType,
+        },
+        {
+          display_name: "Check-in",
+          variable_name: "check_in",
+          value: bookingData.checkIn,
+        },
+        {
+          display_name: "Check-out",
+          variable_name: "check_out",
+          value: bookingData.checkOut,
+        },
+        {
+          display_name: "Nights",
+          variable_name: "nights",
+          value: bookingData.nights,
+        },
+      ],
+    },
+    callback: function (response) {
+      // Payment successful
+      const newBooking = {
+        id: Date.now(),
+        roomType: bookingData.roomType,
+        checkIn: bookingData.checkIn,
+        checkOut: bookingData.checkOut,
+        nights: bookingData.nights,
+        totalPrice: bookingData.totalPrice,
+        userName: bookingData.userName,
+        userEmail: bookingData.userEmail,
+        bookingDate: new Date().toISOString(),
+        paymentReference: response.reference,
+        status: "paid",
+      };
+      saveBooking(newBooking);
+
+      // Close the room modal and show success message
+      closeRoomModal();
+      alert(
+        `Payment successful! Your booking for ${bookingData.roomType} is confirmed.`
+      );
+      // Optionally redirect or reset
+      bookingData = null;
+    },
+    onClose: function () {
+      alert("Payment window closed. You can try again if you wish.");
+    },
+  });
+  handler.openIframe();
 }
 window.handleBookRoom = handleBookRoom;
-
-// ---- Checkout ----
-function renderCheckout() {
-  if (!bookingData) {
-    showView("home");
-    alert("No booking found. Please book a room first.");
-    return;
-  }
-  $(
-    "checkoutWrap"
-  ).innerHTML = `<div class="checkout-inner"><div class="checkout-grid"><div><h2 class="checkout-title">Checkout</h2><p class="checkout-eyebrow">Complete your reservation</p><div class="summary-card"><h3>Stay Summary</h3><div class="summary-row"><span class="label">Room</span><span class="value">${
-    bookingData.roomType
-  }</span></div><div class="summary-row"><span class="label">Dates</span><span class="value">${formatDate(
-    bookingData.checkIn
-  )} — ${formatDate(
-    bookingData.checkOut
-  )}</span></div><div class="summary-row"><span class="label">Nights</span><span class="value">${
-    bookingData.nights
-  }</span></div><div class="summary-total"><span class="label">Total Amount</span><span class="value">R${
-    bookingData.totalPrice
-  }</span></div></div></div><div class="payment-card"><h3>Payment Details</h3><form id="paymentForm" onsubmit="handlePayment(event)"><div class="card-field"><div class="card-field-full form-group"><label>Card Number</label><input type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCardNum(this)" /></div><div class="form-group"><label>Name on Card</label><input type="text" placeholder="Full Name" value="${
-    bookingData.userName
-  }" /></div><div class="form-group"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)" /></div><div class="form-group"><label>CVC</label><input type="text" placeholder="123" maxlength="4" /></div></div><div class="checkout-actions"><button type="button" class="checkout-cancel" onclick="showView('rooms')">Cancel</button><button type="submit" class="checkout-pay" id="payBtn">Pay R${
-    bookingData.totalPrice
-  }</button></div></form><div class="checkout-brands"><img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" /><img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" /><img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" /></div></div></div></div>`;
-}
-function handlePayment(e) {
-  e.preventDefault();
-  const btn = $("payBtn");
-  btn.textContent = "Processing...";
-  btn.disabled = true;
-  // Save booking to localStorage
-  const newBooking = {
-    id: Date.now(),
-    roomType: bookingData.roomType,
-    checkIn: bookingData.checkIn,
-    checkOut: bookingData.checkOut,
-    nights: bookingData.nights,
-    totalPrice: bookingData.totalPrice,
-    userName: bookingData.userName,
-    userEmail: bookingData.userEmail,
-    bookingDate: new Date().toISOString(),
-  };
-  saveBooking(newBooking);
-  setTimeout(() => {
-    $(
-      "checkoutWrap"
-    ).innerHTML = `<div class="checkout-success"><div class="checkout-success-card"><div class="checkout-success-icon"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg></div><h2>Payment Successful</h2><p>Your stay at <strong>${bookingData.roomType}</strong> has been confirmed. A confirmation email has been sent to your inbox.</p><button class="btn-charcoal btn-full" onclick="showView('home')">Return to Home</button></div></div>`;
-    bookingData = null;
-  }, 1500);
-}
-window.handlePayment = handlePayment;
-function formatCardNum(el) {
-  el.value = el.value
-    .replace(/\D/g, "")
-    .replace(/(.{4})/g, "$1 ")
-    .trim()
-    .slice(0, 19);
-}
-window.formatCardNum = formatCardNum;
-function formatExpiry(el) {
-  let v = el.value.replace(/\D/g, "");
-  if (v.length >= 2) v = v.slice(0, 2) + "/" + v.slice(2);
-  el.value = v.slice(0, 5);
-}
-window.formatExpiry = formatExpiry;
 
 // ---- Activities ----
 function renderActivities() {
@@ -1015,7 +992,6 @@ $("contactForm").addEventListener("submit", (e) => {
   }
   btn.textContent = "Sending...";
   btn.disabled = true;
-  // Save message to localStorage
   const msgObj = {
     id: Date.now(),
     name: name,

@@ -186,12 +186,12 @@ function renderBookings() {
     .map((booking) => {
       totalRevenue += booking.totalPrice || 0;
       return `<tr>
-            <td>${escapeHtml(booking.userName || "Guest")}</td>
-            <td>${escapeHtml(booking.roomType || "—")}</td>
-            <td>${booking.checkIn || "—"}</td>
-            <td>${booking.checkOut || "—"}</td>
-            <td><strong>R${booking.totalPrice || 0}</strong></td>
-          </tr>`;
+             <td>${escapeHtml(booking.userName || "Guest")}</td>
+             <td>${escapeHtml(booking.roomType || "—")}</td>
+             <td>${booking.checkIn || "—"}</td>
+             <td>${booking.checkOut || "—"}</td>
+             <td><strong>R${booking.totalPrice || 0}</strong></td>
+           </tr>`;
     })
     .join("");
 
@@ -216,10 +216,10 @@ function renderUsers() {
   const rows = users
     .map((user) => {
       return `<tr>
-            <td>${escapeHtml(user.name || "—")}</td>
-            <td>${escapeHtml(user.email || "—")}</td>
-            <td>${escapeHtml(user.phone || "—")}</td>
-          </tr>`;
+             <td>${escapeHtml(user.name || "—")}</td>
+             <td>${escapeHtml(user.email || "—")}</td>
+             <td>${escapeHtml(user.phone || "—")}</td>
+           </tr>`;
     })
     .join("");
 
@@ -245,11 +245,11 @@ function renderMessages() {
     .map((msg) => {
       const formattedDate = formatMessageDate(msg.date);
       return `<tr>
-            <td>${escapeHtml(msg.name)}</td>
-            <td>${escapeHtml(msg.email)}</td>
-            <td>${escapeHtml(msg.message)}</td>
-            <td>${formattedDate}</td>
-          </tr>`;
+             <td>${escapeHtml(msg.name)}</td>
+             <td>${escapeHtml(msg.email)}</td>
+             <td>${escapeHtml(msg.message)}</td>
+             <td>${formattedDate}</td>
+           </tr>`;
     })
     .join("");
 
