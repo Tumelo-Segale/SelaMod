@@ -812,7 +812,7 @@ function updateRoomPrice() {
 }
 window.updateRoomPrice = updateRoomPrice;
 
-// ---- Paystack Integration ----
+// ---- Paystack Integration with error handling ----
 function handleBookRoom() {
   if (!currentUser) {
     closeRoomModal();
@@ -839,7 +839,15 @@ function handleBookRoom() {
     userEmail: currentUser.email,
   };
 
-  // Paystack public key (test key – replace with your own)
+  // Check if Paystack is loaded
+  if (typeof PaystackPop === "undefined") {
+    alert(
+      "Payment service is not available. Please refresh the page and try again. If the problem persists, contact support."
+    );
+    return;
+  }
+
+  // Paystack public key (REPLACE WITH YOUR OWN KEY)
   const paystackPublicKey = "pk_test_328d06e1e7acac75cab1175db7c135a8f1697132";
 
   // Generate unique reference
@@ -847,67 +855,73 @@ function handleBookRoom() {
     Math.random() * 1000000
   )}`;
 
-  // Open Paystack inline popup
-  const handler = PaystackPop.setup({
-    key: paystackPublicKey,
-    email: currentUser.email,
-    amount: totalPrice * 100, // Paystack expects amount in kobo (100 kobo = 1 ZAR)
-    currency: "ZAR",
-    ref: reference,
-    metadata: {
-      custom_fields: [
-        {
-          display_name: "Room",
-          variable_name: "room",
-          value: bookingData.roomType,
-        },
-        {
-          display_name: "Check-in",
-          variable_name: "check_in",
-          value: bookingData.checkIn,
-        },
-        {
-          display_name: "Check-out",
-          variable_name: "check_out",
-          value: bookingData.checkOut,
-        },
-        {
-          display_name: "Nights",
-          variable_name: "nights",
-          value: bookingData.nights,
-        },
-      ],
-    },
-    callback: function (response) {
-      // Payment successful
-      const newBooking = {
-        id: Date.now(),
-        roomType: bookingData.roomType,
-        checkIn: bookingData.checkIn,
-        checkOut: bookingData.checkOut,
-        nights: bookingData.nights,
-        totalPrice: bookingData.totalPrice,
-        userName: bookingData.userName,
-        userEmail: bookingData.userEmail,
-        bookingDate: new Date().toISOString(),
-        paymentReference: response.reference,
-        status: "paid",
-      };
-      saveBooking(newBooking);
+  try {
+    const handler = PaystackPop.setup({
+      key: paystackPublicKey,
+      email: currentUser.email,
+      amount: totalPrice * 100, // Paystack expects amount in kobo (100 kobo = 1 ZAR)
+      currency: "ZAR",
+      ref: reference,
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Room",
+            variable_name: "room",
+            value: bookingData.roomType,
+          },
+          {
+            display_name: "Check-in",
+            variable_name: "check_in",
+            value: bookingData.checkIn,
+          },
+          {
+            display_name: "Check-out",
+            variable_name: "check_out",
+            value: bookingData.checkOut,
+          },
+          {
+            display_name: "Nights",
+            variable_name: "nights",
+            value: bookingData.nights,
+          },
+        ],
+      },
+      callback: function (response) {
+        // Payment successful
+        const newBooking = {
+          id: Date.now(),
+          roomType: bookingData.roomType,
+          checkIn: bookingData.checkIn,
+          checkOut: bookingData.checkOut,
+          nights: bookingData.nights,
+          totalPrice: bookingData.totalPrice,
+          userName: bookingData.userName,
+          userEmail: bookingData.userEmail,
+          bookingDate: new Date().toISOString(),
+          paymentReference: response.reference,
+          status: "paid",
+        };
+        saveBooking(newBooking);
 
-      // Close the room modal and show success message
-      closeRoomModal();
-      alert(
-        `Payment successful! Your booking for ${bookingData.roomType} is confirmed.`
-      );
-      // Optionally redirect or reset
-      bookingData = null;
-    },
-    onClose: function () {
-      alert("Payment window closed. You can try again if you wish.");
-    },
-  });
-  handler.openIframe();
+        // Close the room modal and show success message
+        closeRoomModal();
+        alert(
+          `Payment successful! Your booking for ${bookingData.roomType} is confirmed.`
+        );
+        // Optionally redirect or reset
+        bookingData = null;
+      },
+      onClose: function () {
+        alert("Payment window closed. You can try again if you wish.");
+      },
+    });
+    handler.openIframe();
+  } catch (err) {
+    console.error("Paystack error:", err);
+    alert(
+      "Unable to open payment window. Please check your internet connection and ensure third-party cookies are allowed."
+    );
+  }
 }
 window.handleBookRoom = handleBookRoom;
 
