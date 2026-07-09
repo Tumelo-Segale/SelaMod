@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel | Selamod Guest House</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="shortcut icon" href="logo.png" type="image/x-icon">
     <link rel="stylesheet" href="admin.css">
@@ -56,6 +57,7 @@
                         <tr>
                             <th>Guest Name</th>
                             <th>Room</th>
+                            <th>Occupancy</th>
                             <th>Check-In</th>
                             <th>Check-Out</th>
                             <th>Total (ZAR)</th>
@@ -63,7 +65,7 @@
                     </thead>
                     <tbody id="bookingsTableBody">
                         <tr>
-                            <td colspan="5" class="empty-state">Loading bookings...</td>
+                            <td colspan="6" class="empty-state">Loading bookings...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -151,9 +153,15 @@
                                 <input type="text" id="roomCategory" required
                                     placeholder="e.g., Signature, Luxury, Minimalist">
                             </div>
-                            <div class="form-group">
-                                <label>Price per Night (ZAR)</label>
-                                <input type="number" id="roomPriceNum" required step="10" min="0">
+                            <div class="form-row-2">
+                                <div class="form-group">
+                                    <label>Price / Night — 1 Guest (ZAR)</label>
+                                    <input type="number" id="roomPriceSingle" required step="10" min="0">
+                                </div>
+                                <div class="form-group">
+                                    <label>Price / Night — 2 Guests Max (ZAR)</label>
+                                    <input type="number" id="roomPriceDouble" required step="10" min="0">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Description</label>

@@ -13,7 +13,18 @@
   <meta property="og:description"
     content="Luxury guest house in Chaneng, Rustenburg. Perfect for business and leisure." />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://www.selamod.com/" />
+  <meta property="og:image" content="https://i.ibb.co/23txcnMg/668293214.jpg" />
+  <meta property="og:image:alt" content="Selamod Guest House exterior" />
+  <meta property="og:locale" content="en_ZA" />
+  <meta property="og:site_name" content="Selamod Guest House" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Selamod Guest House" />
+  <meta name="twitter:description" content="Luxury guest house in Chaneng, Rustenburg. Book your stay today." />
+  <meta name="twitter:image" content="https://i.ibb.co/23txcnMg/668293214.jpg" />
+  <meta name="theme-color" content="#1a1a1a" />
   <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://www.selamod.com/" />
   <link rel="stylesheet" href="style.css" />
   <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -21,6 +32,30 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
     rel="stylesheet" />
+  <!-- Structured data for search engines -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LodgingBusiness",
+    "name": "Selamod Guest House",
+    "image": "https://i.ibb.co/23txcnMg/668293214.jpg",
+    "description": "Selamod Guest House offers luxury accommodation in Chaneng, Rustenburg. Experience comfort, elegance, and serenity.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "828 Matshelapata Chaneng",
+      "addressLocality": "Rustenburg",
+      "addressRegion": "North West",
+      "addressCountry": "ZA"
+    },
+    "telephone": "+27829374899",
+    "email": "support@selamod.com",
+    "priceRange": "R380 - R620",
+    "sameAs": [
+      "https://www.instagram.com/selamod01/",
+      "https://www.facebook.com/share/1YVnJ5DZXs/?mibextid=wwXIfr"
+    ]
+  }
+  </script>
   <!-- Paystack Inline Script -->
   <script src="https://js.paystack.co/v1/inline.js"></script>
 </head>
@@ -325,9 +360,15 @@
   <div id="view-rooms" class="view">
     <div class="rooms-page-wrap">
       <div class="container">
+        <button class="btn-back" id="roomsBackBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back
+        </button>
         <div class="section-header text-center fade-in-scroll" style="margin-bottom:4rem;">
           <span class="eyebrow">Our Collection</span>
-          <h1 class="section-title" style="font-size:clamp(2.5rem,6vw,4rem);">All Rooms & Suites</h1>
+          <h2 class="section-title" style="font-size:clamp(2.5rem,6vw,4rem);">All Rooms & Suites</h2>
           <p class="section-body mx-auto" style="max-width:42rem;">Explore our diverse range of accommodations, each
             designed with meticulous attention to detail.</p>
         </div>

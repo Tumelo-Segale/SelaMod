@@ -82,8 +82,8 @@ textarea {
 }
 
 /* ============================================================
-         NAVBAR (unchanged)
-         ============================================================ */
+               NAVBAR (unchanged)
+               ============================================================ */
 #navbar {
   position: fixed;
   top: 0;
@@ -274,18 +274,36 @@ textarea {
 }
 
 /* ============================================================
-         VIEWS
-         ============================================================ */
+               VIEWS
+               ============================================================ */
 .view {
   display: none;
 }
 .view.active {
   display: block;
 }
+.view.view-fade-in {
+  animation: viewFadeIn 0.32s ease both;
+}
+@keyframes viewFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .view.view-fade-in {
+    animation: none;
+  }
+}
 
 /* ============================================================
-         HERO
-         ============================================================ */
+               HERO
+               ============================================================ */
 .hero {
   position: relative;
   height: 100vh;
@@ -368,8 +386,8 @@ textarea {
 }
 
 /* ============================================================
-         BUTTONS
-         ============================================================ */
+               BUTTONS
+               ============================================================ */
 .btn-outline {
   display: inline-flex;
   align-items: center;
@@ -471,8 +489,8 @@ textarea {
 }
 
 /* ============================================================
-         SECTIONS
-         ============================================================ */
+               SECTIONS
+               ============================================================ */
 .section {
   padding: 6rem 1.5rem;
 }
@@ -550,8 +568,8 @@ textarea {
 }
 
 /* ============================================================
-         FEATURES
-         ============================================================ */
+               FEATURES
+               ============================================================ */
 .features-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -610,8 +628,8 @@ textarea {
 }
 
 /* ============================================================
-         ROOMS
-         ============================================================ */
+               ROOMS
+               ============================================================ */
 .rooms-header {
   display: flex;
   justify-content: space-between;
@@ -702,10 +720,39 @@ textarea {
   background: var(--cream);
   min-height: 100vh;
 }
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: 1px solid rgba(26, 26, 26, 0.15);
+  color: var(--charcoal);
+  padding: 0.6rem 1.1rem;
+  border-radius: 2rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  margin-bottom: 2.5rem;
+  transition: all 0.2s ease;
+}
+.btn-back:hover {
+  background: var(--charcoal);
+  color: var(--sunflower);
+  border-color: var(--charcoal);
+  transform: translateX(-2px);
+}
+.btn-back svg {
+  transition: transform 0.2s ease;
+}
+.btn-back:hover svg {
+  transform: translateX(-2px);
+}
 
 /* ============================================================
-         GALLERY
-         ============================================================ */
+               GALLERY
+               ============================================================ */
 .gallery-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -762,8 +809,8 @@ textarea {
 }
 
 /* ============================================================
-         ACTIVITIES
-         ============================================================ */
+               ACTIVITIES
+               ============================================================ */
 .activities-title {
   font-family: var(--font-serif);
   font-size: clamp(3rem, 8vw, 5rem);
@@ -938,8 +985,8 @@ textarea {
 }
 
 /* ============================================================
-         CONTACT
-         ============================================================ */
+               CONTACT
+               ============================================================ */
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1070,8 +1117,8 @@ textarea {
 }
 
 /* ============================================================
-         FOOTER
-         ============================================================ */
+               FOOTER
+               ============================================================ */
 .footer {
   background: var(--charcoal);
   color: var(--cream);
@@ -1129,8 +1176,8 @@ textarea {
 }
 
 /* ============================================================
-         MODALS
-         ============================================================ */
+               MODALS
+               ============================================================ */
 .modal-backdrop {
   position: fixed;
   inset: 0;
@@ -1322,26 +1369,42 @@ textarea {
 .room-modal {
   width: 100%;
   max-width: 64rem;
-  display: flex;
-  flex-direction: column;
+}
+/* #roomModalContent (id, set in index.html) is the actual direct child of
+      .room-modal that JS fills with gallery + info markup. CSS Grid (not
+      flex + percentage heights) is used here because grid items get a
+      definite, reliable box from their track size — the info column can't
+      silently collapse to zero height the way a flex child with height:100%
+      sometimes does. Mobile: gallery stacked above info (2 rows). Desktop:
+      gallery beside info (2 columns), each filling the full modal height. */
+#roomModalContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto;
 }
 @media (min-width: 768px) {
-  .room-modal {
-    flex-direction: row;
+  #roomModalContent {
+    grid-template-columns: 46% 1fr;
+    grid-template-rows: 1fr;
+    /* Definite height so both columns have something real to stretch to. */
+    height: min(85vh, 46rem);
+    max-height: 85vh;
+    overflow: hidden;
   }
 }
 .room-modal-gallery {
   width: 100%;
   height: 16rem;
-  flex-shrink: 0;
   position: relative;
   overflow: hidden;
   background: #f0f0f0;
+  min-width: 0;
+  min-height: 0;
 }
 @media (min-width: 768px) {
   .room-modal-gallery {
-    width: 50%;
-    height: auto;
+    width: 100%;
+    height: 100%;
   }
 }
 .room-modal-slide {
@@ -1381,6 +1444,12 @@ textarea {
 .gallery-btn:hover {
   background: var(--gold);
   color: #fff;
+}
+@media (hover: none) {
+  .gallery-btn {
+    opacity: 1;
+    background: rgba(253, 251, 247, 0.75);
+  }
 }
 .gallery-prev {
   left: 1rem;
@@ -1426,11 +1495,13 @@ textarea {
 .room-modal-info {
   padding: 2rem;
   overflow-y: auto;
-  flex: 1;
+  min-width: 0;
+  min-height: 0;
 }
 @media (min-width: 768px) {
   .room-modal-info {
     padding: 3rem;
+    height: 100%;
   }
 }
 .room-modal-info h2 {
@@ -1443,6 +1514,13 @@ textarea {
   font-weight: 700;
   font-size: 1.125rem;
   margin-bottom: 1.5rem;
+}
+.room-price .price-sep {
+  color: rgba(26, 26, 26, 0.45);
+  font-weight: 600;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 .amenities-label {
   font-size: 0.6rem;
@@ -1489,6 +1567,54 @@ textarea {
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 1rem;
 }
+.occupancy-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.occupancy-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  background: var(--cream);
+  border: 1px solid rgba(26, 26, 26, 0.1);
+  border-radius: 0.6rem;
+  padding: 0.75rem 0.9rem;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+.occupancy-option:hover {
+  border-color: var(--gold);
+}
+.occupancy-option.active {
+  background: var(--charcoal);
+  border-color: var(--charcoal);
+}
+.occupancy-option .occ-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--charcoal);
+}
+.occupancy-option .occ-price {
+  font-size: 0.7rem;
+  color: rgba(26, 26, 26, 0.5);
+}
+.occupancy-option.active .occ-label {
+  color: var(--sunflower);
+}
+.occupancy-option.active .occ-price {
+  color: rgba(253, 251, 247, 0.7);
+}
+@media (max-width: 480px) {
+  .occupancy-selector {
+    grid-template-columns: 1fr;
+  }
+}
 .booking-dates {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1506,6 +1632,16 @@ textarea {
 }
 .booking-dates .form-input:focus {
   border-color: var(--gold);
+}
+/* Mobile: stack date pickers and amenity/facility lists one below the
+         other instead of a cramped 2-column row, to avoid overlapping text.
+         Placed after the base rules above so it actually wins the cascade. */
+@media (max-width: 767px) {
+  .booking-dates,
+  .amenities-cols {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
 }
 .price-summary {
   background: rgba(253, 251, 247, 0.5);
@@ -1542,8 +1678,8 @@ textarea {
 }
 
 /* ============================================================
-         CHECKOUT
-         ============================================================ */
+               CHECKOUT
+               ============================================================ */
 .checkout-wrap {
   padding-top: 8rem;
   padding-bottom: 6rem;
@@ -1756,8 +1892,8 @@ textarea {
 }
 
 /* ============================================================
-         SCROLL ANIMATION
-         ============================================================ */
+               SCROLL ANIMATION
+               ============================================================ */
 .fade-in-scroll {
   opacity: 0;
   transform: translateY(2.5rem);
@@ -1769,8 +1905,8 @@ textarea {
 }
 
 /* ============================================================
-         ENHANCED INPUT & FORM EDGES
-         ============================================================ */
+               ENHANCED INPUT & FORM EDGES
+               ============================================================ */
 /* General input styling (all text, email, password, date, select) */
 input[type="text"],
 input[type="email"],
@@ -1872,5 +2008,177 @@ select.dark {
   select,
   textarea {
     padding: 0.65rem 0.9rem;
+  }
+}
+
+/* ============================================================
+         TOASTS & DIALOGS (replace native alert()/confirm())
+         ============================================================ */
+#feedbackRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  pointer-events: none;
+}
+
+.toast-stack {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 9001;
+  max-width: min(360px, calc(100vw - 2rem));
+}
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: var(--charcoal);
+  color: var(--cream);
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-left: 3px solid var(--sunflower);
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  cursor: pointer;
+}
+.toast-item.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+.toast-item.toast-success {
+  border-left-color: #4ade80;
+}
+.toast-item.toast-error {
+  border-left-color: #f87171;
+}
+.toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.toast-success .toast-icon {
+  color: #4ade80;
+}
+.toast-error .toast-icon {
+  color: #f87171;
+}
+.toast-info .toast-icon {
+  color: var(--sunflower);
+}
+
+.dlg-backdrop {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 9002;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.dlg-backdrop.show {
+  opacity: 1;
+}
+.dlg-card {
+  background: var(--cream);
+  border-radius: 1rem;
+  padding: 2.25rem 2rem;
+  width: 100%;
+  max-width: 24rem;
+  text-align: center;
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+.dlg-backdrop.show .dlg-card {
+  transform: scale(1) translateY(0);
+}
+.dlg-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgba(212, 175, 55, 0.15);
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+.dlg-success .dlg-icon {
+  background: rgba(74, 222, 128, 0.15);
+  color: #2c5e2a;
+}
+.dlg-error .dlg-icon,
+.dlg-warning .dlg-icon {
+  background: rgba(248, 113, 113, 0.15);
+  color: #b33;
+}
+.dlg-title {
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: var(--charcoal);
+}
+.dlg-message {
+  font-size: 0.85rem;
+  color: rgba(26, 26, 26, 0.65);
+  line-height: 1.6;
+  margin-bottom: 1.75rem;
+}
+.dlg-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.dlg-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+.dlg-btn-primary {
+  background: var(--charcoal);
+  color: var(--sunflower);
+}
+.dlg-btn-primary:hover {
+  background: #000;
+}
+.dlg-btn-danger {
+  background: #b33;
+  color: #fff;
+}
+.dlg-btn-danger:hover {
+  background: #922;
+}
+.dlg-btn-secondary {
+  background: rgba(26, 26, 26, 0.08);
+  color: var(--charcoal);
+}
+.dlg-btn-secondary:hover {
+  background: rgba(26, 26, 26, 0.15);
+}
+@media (max-width: 480px) {
+  .toast-stack {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: none;
   }
 }

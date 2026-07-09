@@ -561,3 +561,178 @@ tr:hover {
     align-self: flex-end;
   }
 }
+
+/* Two-column form row (occupancy pricing) */
+.form-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 480px) {
+  .form-row-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ============================================================
+   TOASTS & DIALOGS (replace native alert()/confirm())
+   ============================================================ */
+#feedbackRoot {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  pointer-events: none;
+}
+
+.toast-stack {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  z-index: 5001;
+  max-width: min(360px, calc(100vw - 2rem));
+}
+.toast-item {
+  pointer-events: auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  background: #1a1a1a;
+  color: #f5f1e9;
+  padding: 0.85rem 1rem;
+  border-radius: 0.6rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  border-left: 3px solid #ffd700;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  cursor: pointer;
+}
+.toast-item.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+.toast-item.toast-success {
+  border-left-color: #4ade80;
+}
+.toast-item.toast-error {
+  border-left-color: #f87171;
+}
+.toast-icon {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.toast-success .toast-icon {
+  color: #4ade80;
+}
+.toast-error .toast-icon {
+  color: #f87171;
+}
+.toast-info .toast-icon {
+  color: #ffd700;
+}
+
+.dlg-backdrop {
+  pointer-events: auto;
+  position: fixed;
+  inset: 0;
+  background: rgba(26, 26, 26, 0.75);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  z-index: 5002;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.dlg-backdrop.show {
+  opacity: 1;
+}
+.dlg-card {
+  background: #fff;
+  border-radius: 1rem;
+  padding: 2rem;
+  width: 100%;
+  max-width: 24rem;
+  text-align: center;
+  transform: scale(0.95) translateY(10px);
+  transition: transform 0.2s ease;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3);
+}
+.dlg-backdrop.show .dlg-card {
+  transform: scale(1) translateY(0);
+}
+.dlg-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: rgba(255, 215, 0, 0.15);
+  color: #b8860b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+.dlg-success .dlg-icon {
+  background: rgba(74, 222, 128, 0.15);
+  color: #2c5e2a;
+}
+.dlg-error .dlg-icon,
+.dlg-warning .dlg-icon {
+  background: rgba(248, 113, 113, 0.15);
+  color: #b33;
+}
+.dlg-title {
+  font-family: "Playfair Display", serif;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #1a1a1a;
+}
+.dlg-message {
+  font-size: 0.85rem;
+  color: #4a5568;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+.dlg-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.dlg-btn {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.dlg-btn-primary {
+  background: #ffd700;
+  color: #1a1a1a;
+}
+.dlg-btn-primary:hover {
+  background: #e6c300;
+}
+.dlg-btn-danger {
+  background: #b33;
+  color: #fff;
+}
+.dlg-btn-danger:hover {
+  background: #922;
+}
+.dlg-btn-secondary {
+  background: #e2e8f0;
+  color: #1a1a1a;
+}
+.dlg-btn-secondary:hover {
+  background: #cbd5e0;
+}

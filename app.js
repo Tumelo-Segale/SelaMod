@@ -23,6 +23,8 @@ const DEFAULT_ROOMS = [
     category: "Signature",
     price: "R450",
     priceNum: 450,
+    priceSingle: 450,
+    priceDouble: 600,
     image: "https://i.ibb.co/mFyZQRDQ/165601429.jpg",
     images: [
       "https://i.ibb.co/mFyZQRDQ/165601429.jpg",
@@ -53,6 +55,8 @@ const DEFAULT_ROOMS = [
     category: "Luxury",
     price: "R620",
     priceNum: 620,
+    priceSingle: 620,
+    priceDouble: 780,
     image: "https://i.ibb.co/rRnj1g24/232551023.jpg",
     images: [
       "https://i.ibb.co/rRnj1g24/232551023.jpg",
@@ -84,6 +88,8 @@ const DEFAULT_ROOMS = [
     category: "Minimalist",
     price: "R380",
     priceNum: 380,
+    priceSingle: 380,
+    priceDouble: 500,
     image: "https://i.ibb.co/vxMTmwWT/622887367.jpg",
     images: [
       "https://i.ibb.co/vxMTmwWT/622887367.jpg",
@@ -305,6 +311,7 @@ let bookingData = null;
 let currentView = "home";
 let openRoom = null;
 let roomModalCurrentImg = 0;
+let selectedOccupancy = 1;
 let forgotEmail = null;
 
 function $(id) {
@@ -326,11 +333,119 @@ function calcNights(checkIn, checkOut) {
   const n = Math.ceil(diff / (1000 * 60 * 60 * 24));
   return n > 0 ? n : 0;
 }
+
+// ---- UI Feedback (toasts & dialogs) — replaces native alert()/confirm() ----
+function ensureFeedbackRoot() {
+  let root = $("feedbackRoot");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "feedbackRoot";
+    document.body.appendChild(root);
+  }
+  return root;
+}
+const TOAST_ICONS = {
+  success:
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+  error:
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+};
+function toast(message, type = "info", duration = 3800) {
+  const root = ensureFeedbackRoot();
+  let stack = root.querySelector(".toast-stack");
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.className = "toast-stack";
+    root.appendChild(stack);
+  }
+  const el = document.createElement("div");
+  el.className = `toast-item toast-${type}`;
+  el.innerHTML = `<span class="toast-icon">${
+    TOAST_ICONS[type] || TOAST_ICONS.info
+  }</span><span class="toast-msg">${message}</span>`;
+  stack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  const remove = () => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 250);
+  };
+  el.addEventListener("click", remove);
+  setTimeout(remove, duration);
+}
+function showDialog({ title, message, type = "info", actions }) {
+  return new Promise((resolve) => {
+    const root = ensureFeedbackRoot();
+    const backdrop = document.createElement("div");
+    backdrop.className = "dlg-backdrop";
+    const actionsHtml = actions
+      .map(
+        (a, i) =>
+          `<button type="button" class="dlg-btn ${
+            a.style === "primary"
+              ? "dlg-btn-primary"
+              : a.style === "danger"
+              ? "dlg-btn-danger"
+              : "dlg-btn-secondary"
+          }" data-idx="${i}">${a.label}</button>`
+      )
+      .join("");
+    backdrop.innerHTML = `<div class="dlg-card dlg-${type}">
+            <div class="dlg-icon">${
+              type === "success"
+                ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+                : type === "error" || type === "warning"
+                ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
+                : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+            }</div>
+            ${title ? `<h3 class="dlg-title">${title}</h3>` : ""}
+            <p class="dlg-message">${message}</p>
+            <div class="dlg-actions">${actionsHtml}</div>
+          </div>`;
+    root.appendChild(backdrop);
+    requestAnimationFrame(() => backdrop.classList.add("show"));
+    function close(value) {
+      backdrop.classList.remove("show");
+      setTimeout(() => backdrop.remove(), 200);
+      resolve(value);
+    }
+    backdrop.querySelectorAll(".dlg-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-idx"), 10);
+        close(actions[idx].value);
+      });
+    });
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close(false);
+    });
+  });
+}
+function confirmDialog(message, opts = {}) {
+  return showDialog({
+    title: opts.title || "Please Confirm",
+    message,
+    type: opts.type || "warning",
+    actions: [
+      { label: opts.cancelText || "Cancel", value: false, style: "secondary" },
+      {
+        label: opts.confirmText || "Confirm",
+        value: true,
+        style: opts.danger ? "danger" : "primary",
+      },
+    ],
+  });
+}
+
 function showView(name) {
   document
     .querySelectorAll(".view")
     .forEach((v) => v.classList.remove("active"));
-  $(`view-${name}`).classList.add("active");
+  const target = $(`view-${name}`);
+  target.classList.add("active");
+  target.classList.remove("view-fade-in");
+  // Force reflow so the fade-in transition restarts every time (fast, consistent transitions)
+  void target.offsetWidth;
+  target.classList.add("view-fade-in");
   currentView = name;
   updateNavbar();
   window.scrollTo(0, 0);
@@ -367,12 +482,35 @@ $("hamburger").addEventListener("click", () => {
   $("mobileMenu").classList.toggle("open");
 });
 
+// ---- Back navigation for the Rooms view ----
+let previousView = "home";
+function goToRoomsView() {
+  previousView = currentView;
+  history.pushState({ view: "rooms" }, "", "#rooms-collection");
+  showView("rooms");
+}
+function goBackFromRooms() {
+  const target = previousView || "home";
+  history.pushState(
+    { view: target },
+    "",
+    target === "home" ? "#" : `#${target}`
+  );
+  showView(target);
+}
+window.addEventListener("popstate", (e) => {
+  const view = (e.state && e.state.view) || "home";
+  showView(view);
+});
+const roomsBackBtn = $("roomsBackBtn");
+if (roomsBackBtn) roomsBackBtn.addEventListener("click", goBackFromRooms);
+
 document.querySelectorAll(".nav-link, .mobile-link").forEach((btn) => {
   btn.addEventListener("click", () => {
     const view = btn.dataset.view;
     const href = btn.dataset.href;
     if (view === "rooms") {
-      showView("rooms");
+      goToRoomsView();
     } else {
       if (currentView !== "home") {
         showView("home");
@@ -389,7 +527,7 @@ document.querySelectorAll(".nav-link, .mobile-link").forEach((btn) => {
 });
 
 $("logoBtn").addEventListener("click", () => showView("home"));
-$("viewAllRoomsBtn").addEventListener("click", () => showView("rooms"));
+$("viewAllRoomsBtn").addEventListener("click", () => goToRoomsView());
 
 // ---- Auth UI ----
 function updateAuthNav() {
@@ -409,7 +547,13 @@ function updateAuthNav() {
   }
 }
 function showUserDropdown() {
-  if (confirm(`Sign out as ${currentUser.name}?`)) signOut();
+  confirmDialog(`You'll need to sign in again to book or manage your stay.`, {
+    title: `Sign Out, ${currentUser.name.split(" ")[0]}?`,
+    confirmText: "Sign Out",
+    cancelText: "Stay Signed In",
+  }).then((confirmed) => {
+    if (confirmed) signOut();
+  });
 }
 function signOut() {
   currentUser = null;
@@ -418,6 +562,7 @@ function signOut() {
   if ($("roomBackdrop") && !$("roomBackdrop").classList.contains("hidden")) {
     closeRoomModal();
   }
+  toast("You have been signed out.", "success", 2500);
 }
 $("heroBookBtn").addEventListener("click", () => {
   if (!currentUser) openAuthModal();
@@ -446,32 +591,32 @@ function renderAuthModal() {
   const content = $("authContent");
   if (authMode === "signin") {
     content.innerHTML = `<h2>Sign In</h2><p class="auth-sub">Welcome back to your sanctuary</p>
-                  <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-                  <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="••••••••" /></div>
-                  <div style="text-align:right;margin-bottom:1rem;"><button type="button" class="forgot-btn" onclick="switchAuthMode('forgot')">Forgot Password?</button></div>
-                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Sign In</button>
-                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signup')">Don't have an account? Sign Up</button></div></form>`;
+                        <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
+                        <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="••••••••" /></div>
+                        <div style="text-align:right;margin-bottom:1rem;"><button type="button" class="forgot-btn" onclick="switchAuthMode('forgot')">Forgot Password?</button></div>
+                        <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Sign In</button>
+                        <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signup')">Don't have an account? Sign Up</button></div></form>`;
   } else if (authMode === "signup") {
     content.innerHTML = `<h2>Create Account</h2><p class="auth-sub">Join the Selamod family</p>
-                  <form class="auth-form" id="authForm"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="afFirst" required /></div>
-                  <div class="form-group"><label class="form-label">Surname</label><input type="text" class="form-input" id="afSurname" required /></div></div>
-                  <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="afPhone" required /></div>
-                  <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-                  <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
-                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Create Account</button>
-                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Already have an account? Sign In</button></div></form>`;
+                        <form class="auth-form" id="authForm"><div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;"><div class="form-group"><label class="form-label">First Name</label><input type="text" class="form-input" id="afFirst" required /></div>
+                        <div class="form-group"><label class="form-label">Surname</label><input type="text" class="form-input" id="afSurname" required /></div></div>
+                        <div class="form-group"><label class="form-label">Phone Number</label><input type="tel" class="form-input" id="afPhone" required /></div>
+                        <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
+                        <div class="form-group"><label class="form-label">Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
+                        <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Create Account</button>
+                        <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Already have an account? Sign In</button></div></form>`;
   } else if (authMode === "forgot") {
     if (forgotStep === 1) {
       content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Enter your registered email</p>
-                  <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
-                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Verify Email</button>
-                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Back to Sign In</button></div></form>`;
+                        <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="afEmail" required placeholder="your@email.com" /></div>
+                        <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Verify Email</button>
+                        <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Back to Sign In</button></div></form>`;
     } else if (forgotStep === 2) {
       content.innerHTML = `<h2>Reset Password</h2><p class="auth-sub">Set a new password for ${forgotEmail}</p>
-                  <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
-                  <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="afConfirm" required placeholder="Confirm new password" /></div>
-                  <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Update Password</button>
-                  <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Cancel</button></div></form>`;
+                        <form class="auth-form" id="authForm"><div class="form-group"><label class="form-label">New Password</label><input type="password" class="form-input" id="afPassword" required placeholder="Min. 6 characters" minlength="6" /></div>
+                        <div class="form-group"><label class="form-label">Confirm Password</label><input type="password" class="form-input" id="afConfirm" required placeholder="Confirm new password" /></div>
+                        <div class="auth-error hidden" id="authError"></div><button type="submit" class="btn-sunflower btn-full" id="authSubmitBtn">Update Password</button>
+                        <div class="auth-toggle"><button type="button" onclick="switchAuthMode('signin')">Cancel</button></div></form>`;
     }
   }
   setTimeout(() => {
@@ -680,8 +825,14 @@ window.handleGoogleSignIn = function () {
 function createRoomCard(room, onClick) {
   const div = document.createElement("div");
   div.className = "room-card fade-in-scroll";
+  const priceSingle = room.priceSingle ?? room.priceNum;
+  const priceDouble = room.priceDouble ?? room.priceNum;
+  const priceLabel =
+    priceDouble && priceDouble !== priceSingle
+      ? `R${priceSingle} · R${priceDouble} / Night`
+      : `From R${priceSingle} / Night`;
   div.innerHTML = `<div class="room-card-img"><img src="${room.image}" alt="${room.title}" loading="lazy" referrerpolicy="no-referrer" /><div class="room-badge">${room.category}</div></div>
-                <div class="room-card-info"><div><h3>${room.title}</h3><p>From ${room.price} / Night</p></div><div class="room-card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>`;
+                      <div class="room-card-info"><div><h3>${room.title}</h3><p>${priceLabel}</p></div><div class="room-card-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div></div>`;
   div.addEventListener("click", () => onClick(room));
   return div;
 }
@@ -701,6 +852,7 @@ function renderRooms() {
 function openRoomModal(room) {
   openRoom = room;
   roomModalCurrentImg = 0;
+  selectedOccupancy = 1;
   renderRoomModal(room);
   $("roomBackdrop").classList.remove("hidden");
 }
@@ -714,6 +866,17 @@ $("roomBackdrop").addEventListener("click", (e) => {
 });
 
 function renderRoomModal(room) {
+  // Defensive fallbacks: a room saved before a field existed (or edited
+  // outside the admin panel) could be missing one of these arrays, which
+  // would otherwise throw here and leave the modal content blank.
+  room.images =
+    room.images && room.images.length
+      ? room.images
+      : room.image
+      ? [room.image]
+      : [];
+  room.bathroom = room.bathroom || [];
+  room.facilities = room.facilities || [];
   const slides = room.images
     .map(
       (src, i) =>
@@ -744,6 +907,8 @@ function renderRoomModal(room) {
         `<li><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>${f}</li>`
     )
     .join("");
+  const priceSingle = room.priceSingle ?? room.priceNum;
+  const priceDouble = room.priceDouble ?? room.priceNum;
   $(
     "roomModalContent"
   ).innerHTML = `<div class="room-modal-gallery" id="roomGallery">${slides}${
@@ -751,26 +916,65 @@ function renderRoomModal(room) {
       ? `<button class="gallery-btn gallery-prev" onclick="roomImgPrev()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><button class="gallery-btn gallery-next" onclick="roomImgNext()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button><div class="gallery-dots">${dots}</div>`
       : ""
   }<div class="room-category-badge">${room.category}</div></div>
-                <div class="room-modal-info"><h2>${
-                  room.title
-                }</h2><p class="room-price">From ${
-    room.price
-  } / Night</p><div style="margin-bottom:2rem;"><p style="font-size:.875rem;color:rgba(26,26,26,.65);line-height:1.7;">${
+                      <div class="room-modal-info"><h2>${
+                        room.title
+                      }</h2><p class="room-price">R${priceSingle} <span class="price-sep">/ 1 Guest</span> &middot; R${priceDouble} <span class="price-sep">/ 2 Guests</span> &middot; per Night</p><div style="margin-bottom:2rem;"><p style="font-size:.875rem;color:rgba(26,26,26,.65);line-height:1.7;">${
     room.description
   }</p></div>
-                <div class="amenities-cols"><div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22H4a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3h1"/><path d="M7 22h10"/><path d="M17 22h3a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3h-1"/><rect x="9" y="10" width="6" height="10"/><circle cx="12" cy="7" r="3"/></svg> Bathroom Amenities</p><ul class="amenities-list">${bathItems}</ul></div>
-                <div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Room Facilities</p><ul class="amenities-list">${facItems}</ul></div></div>
-                <div class="booking-panel" id="roomBookPanel"><p class="amenities-label" style="margin-bottom:1rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Check Availability & Cost</p>
-                <div class="booking-dates"><div class="form-group"><label class="form-label">Check-In</label><input type="date" class="form-input" id="rmCheckIn" onchange="updateRoomPrice()" /></div><div class="form-group"><label class="form-label">Check-Out</label><input type="date" class="form-input" id="rmCheckOut" onchange="updateRoomPrice()" /></div></div>
-                <div class="price-summary hidden" id="priceSummary"><div class="price-row"><span class="label" id="pricePerNight"></span><span class="value" id="priceSubtotal"></span></div><div class="price-total"><span class="label">Total Stay Cost</span><span class="value" id="priceTotal"></span></div></div>
-                <button class="btn-charcoal btn-full" id="bookRoomBtn" onclick="handleBookRoom()">${
-                  currentUser ? "Book This Room" : "Sign In to Book"
-                }</button></div></div>`;
+                      <div class="amenities-cols"><div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22H4a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3h1"/><path d="M7 22h10"/><path d="M17 22h3a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3h-1"/><rect x="9" y="10" width="6" height="10"/><circle cx="12" cy="7" r="3"/></svg> Bathroom Amenities</p><ul class="amenities-list">${bathItems}</ul></div>
+                      <div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg> Room Facilities</p><ul class="amenities-list">${facItems}</ul></div></div>
+                      <div class="booking-panel" id="roomBookPanel"><p class="amenities-label" style="margin-bottom:1rem;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Check Availability & Cost</p>
+                      <div class="occupancy-selector" role="radiogroup" aria-label="Number of guests">
+                        <button type="button" class="occupancy-option active" data-guests="1" aria-pressed="true"><span class="occ-label">1 Guest</span><span class="occ-price">R${priceSingle} / night</span></button>
+                        <button type="button" class="occupancy-option" data-guests="2" aria-pressed="false"><span class="occ-label">2 Guests (Max)</span><span class="occ-price">R${priceDouble} / night</span></button>
+                      </div>
+                      <div class="booking-dates"><div class="form-group"><label class="form-label">Check-In</label><input type="date" class="form-input" id="rmCheckIn" onchange="updateRoomPrice()" /></div><div class="form-group"><label class="form-label">Check-Out</label><input type="date" class="form-input" id="rmCheckOut" onchange="updateRoomPrice()" /></div></div>
+                      <div class="price-summary hidden" id="priceSummary"><div class="price-row"><span class="label" id="pricePerNight"></span><span class="value" id="priceSubtotal"></span></div><div class="price-total"><span class="label">Total Stay Cost</span><span class="value" id="priceTotal"></span></div></div>
+                      <button class="btn-charcoal btn-full" id="bookRoomBtn" onclick="handleBookRoom()">${
+                        currentUser ? "Book This Room" : "Sign In to Book"
+                      }</button></div></div>`;
   const today = new Date().toISOString().split("T")[0];
   const ciInput = $("rmCheckIn");
   const coInput = $("rmCheckOut");
   if (ciInput) ciInput.min = today;
   if (coInput) coInput.min = today;
+
+  // Occupancy toggle
+  document.querySelectorAll(".occupancy-option").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectedOccupancy = parseInt(btn.getAttribute("data-guests"), 10);
+      document.querySelectorAll(".occupancy-option").forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle("active", active);
+        b.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+      updateRoomPrice();
+    });
+  });
+
+  // Mobile swipe support for the image gallery
+  const galleryEl = $("roomGallery");
+  if (galleryEl && room.images.length > 1) {
+    let touchStartX = 0;
+    galleryEl.addEventListener(
+      "touchstart",
+      (e) => {
+        touchStartX = e.changedTouches[0].clientX;
+      },
+      { passive: true }
+    );
+    galleryEl.addEventListener(
+      "touchend",
+      (e) => {
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        if (Math.abs(dx) > 40) {
+          if (dx < 0) roomImgNext();
+          else roomImgPrev();
+        }
+      },
+      { passive: true }
+    );
+  }
 }
 function goToRoomImg(idx) {
   const slides = document.querySelectorAll("#roomGallery .room-modal-slide");
@@ -798,11 +1002,15 @@ function updateRoomPrice() {
   const co = $("rmCheckOut") ? $("rmCheckOut").value : "";
   const nights = calcNights(ci, co);
   const summary = $("priceSummary");
+  const perNight =
+    selectedOccupancy === 2
+      ? openRoom.priceDouble ?? openRoom.priceNum
+      : openRoom.priceSingle ?? openRoom.priceNum;
   if (nights > 0) {
-    const total = nights * openRoom.priceNum;
-    $("pricePerNight").textContent = `${openRoom.price} × ${nights} night${
+    const total = nights * perNight;
+    $("pricePerNight").textContent = `R${perNight} × ${nights} night${
       nights > 1 ? "s" : ""
-    }`;
+    } · ${selectedOccupancy} Guest${selectedOccupancy > 1 ? "s" : ""}`;
     $("priceSubtotal").textContent = `R${total}`;
     $("priceTotal").textContent = `R${total}`;
     summary.classList.remove("hidden");
@@ -823,17 +1031,23 @@ function handleBookRoom() {
   const co = $("rmCheckOut") ? $("rmCheckOut").value : "";
   const nights = calcNights(ci, co);
   if (!ci || !co || nights <= 0) {
-    alert("Please select valid check-in and check-out dates.");
+    toast("Please select valid check-in and check-out dates.", "error");
     return;
   }
 
-  // Prepare booking data
-  const totalPrice = nights * openRoom.priceNum;
+  // Prepare booking data (based on selected occupancy)
+  const perNight =
+    selectedOccupancy === 2
+      ? openRoom.priceDouble ?? openRoom.priceNum
+      : openRoom.priceSingle ?? openRoom.priceNum;
+  const totalPrice = nights * perNight;
   bookingData = {
     roomType: openRoom.title,
     checkIn: ci,
     checkOut: co,
     nights,
+    guests: selectedOccupancy,
+    pricePerNight: perNight,
     totalPrice,
     userName: currentUser.name,
     userEmail: currentUser.email,
@@ -841,9 +1055,13 @@ function handleBookRoom() {
 
   // Check if Paystack is loaded
   if (typeof PaystackPop === "undefined") {
-    alert(
-      "Payment service is not available. Please refresh the page and try again. If the problem persists, contact support."
-    );
+    showDialog({
+      title: "Payment Unavailable",
+      message:
+        "Payment service is not available. Please refresh the page and try again. If the problem persists, contact support.",
+      type: "error",
+      actions: [{ label: "OK", value: true, style: "primary" }],
+    });
     return;
   }
 
@@ -870,6 +1088,11 @@ function handleBookRoom() {
             value: bookingData.roomType,
           },
           {
+            display_name: "Guests",
+            variable_name: "guests",
+            value: bookingData.guests,
+          },
+          {
             display_name: "Check-in",
             variable_name: "check_in",
             value: bookingData.checkIn,
@@ -894,6 +1117,8 @@ function handleBookRoom() {
           checkIn: bookingData.checkIn,
           checkOut: bookingData.checkOut,
           nights: bookingData.nights,
+          guests: bookingData.guests,
+          pricePerNight: bookingData.pricePerNight,
           totalPrice: bookingData.totalPrice,
           userName: bookingData.userName,
           userEmail: bookingData.userEmail,
@@ -904,23 +1129,31 @@ function handleBookRoom() {
         saveBooking(newBooking);
 
         // Close the room modal and show success message
+        const confirmedRoom = bookingData.roomType;
         closeRoomModal();
-        alert(
-          `Payment successful! Your booking for ${bookingData.roomType} is confirmed.`
-        );
+        showDialog({
+          title: "Booking Confirmed",
+          message: `Payment successful! Your booking for ${confirmedRoom} is confirmed. A confirmation has been recorded under your account.`,
+          type: "success",
+          actions: [{ label: "Great, thanks!", value: true, style: "primary" }],
+        });
         // Optionally redirect or reset
         bookingData = null;
       },
       onClose: function () {
-        alert("Payment window closed. You can try again if you wish.");
+        toast("Payment window closed. You can try again if you wish.", "info");
       },
     });
     handler.openIframe();
   } catch (err) {
     console.error("Paystack error:", err);
-    alert(
-      "Unable to open payment window. Please check your internet connection and ensure third-party cookies are allowed."
-    );
+    showDialog({
+      title: "Payment Error",
+      message:
+        "Unable to open payment window. Please check your internet connection and ensure third-party cookies are allowed.",
+      type: "error",
+      actions: [{ label: "OK", value: true, style: "primary" }],
+    });
   }
 }
 window.handleBookRoom = handleBookRoom;
@@ -1001,7 +1234,7 @@ $("contactForm").addEventListener("submit", (e) => {
   const email = $("cfEmail").value.trim();
   const message = $("cfMessage").value.trim();
   if (!name || !email || !message) {
-    alert("Please fill in all fields.");
+    toast("Please fill in all fields.", "error");
     return;
   }
   btn.textContent = "Sending...";

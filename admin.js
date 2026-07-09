@@ -16,6 +16,8 @@ const DEFAULT_ROOMS = [
     category: "Signature",
     price: "R450",
     priceNum: 450,
+    priceSingle: 450,
+    priceDouble: 600,
     image: "https://i.ibb.co/mFyZQRDQ/165601429.jpg",
     images: [
       "https://i.ibb.co/mFyZQRDQ/165601429.jpg",
@@ -46,6 +48,8 @@ const DEFAULT_ROOMS = [
     category: "Luxury",
     price: "R620",
     priceNum: 620,
+    priceSingle: 620,
+    priceDouble: 780,
     image: "https://i.ibb.co/rRnj1g24/232551023.jpg",
     images: [
       "https://i.ibb.co/rRnj1g24/232551023.jpg",
@@ -77,6 +81,8 @@ const DEFAULT_ROOMS = [
     category: "Minimalist",
     price: "R380",
     priceNum: 380,
+    priceSingle: 380,
+    priceDouble: 500,
     image: "https://i.ibb.co/vxMTmwWT/622887367.jpg",
     images: [
       "https://i.ibb.co/vxMTmwWT/622887367.jpg",
@@ -155,6 +161,117 @@ function checkAdminAuth() {
   return true;
 }
 
+// ==================== UI FEEDBACK (toasts & dialogs) ====================
+// Lightweight, dependency-free pop-ups used instead of native alert()/confirm().
+function ensureFeedbackRoot() {
+  let root = document.getElementById("feedbackRoot");
+  if (!root) {
+    root = document.createElement("div");
+    root.id = "feedbackRoot";
+    document.body.appendChild(root);
+  }
+  return root;
+}
+
+const TOAST_ICONS = {
+  success:
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+  error:
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  info: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+};
+
+function toast(message, type = "info", duration = 3800) {
+  const root = ensureFeedbackRoot();
+  let stack = root.querySelector(".toast-stack");
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.className = "toast-stack";
+    root.appendChild(stack);
+  }
+  const el = document.createElement("div");
+  el.className = `toast-item toast-${type}`;
+  el.innerHTML = `<span class="toast-icon">${
+    TOAST_ICONS[type] || TOAST_ICONS.info
+  }</span><span class="toast-msg">${escapeHtml(message)}</span>`;
+  stack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add("show"));
+  const remove = () => {
+    el.classList.remove("show");
+    setTimeout(() => el.remove(), 250);
+  };
+  el.addEventListener("click", remove);
+  setTimeout(remove, duration);
+}
+
+function showDialog({ title, message, type = "info", actions }) {
+  return new Promise((resolve) => {
+    const root = ensureFeedbackRoot();
+    const backdrop = document.createElement("div");
+    backdrop.className = "dlg-backdrop";
+    const actionsHtml = actions
+      .map(
+        (a, i) =>
+          `<button type="button" class="dlg-btn ${
+            a.style === "primary"
+              ? "dlg-btn-primary"
+              : a.style === "danger"
+              ? "dlg-btn-danger"
+              : "dlg-btn-secondary"
+          }" data-idx="${i}">${escapeHtml(a.label)}</button>`
+      )
+      .join("");
+    backdrop.innerHTML = `<div class="dlg-card dlg-${type}">
+      <div class="dlg-icon">${
+        type === "success"
+          ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>'
+          : type === "error" || type === "warning"
+          ? '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>'
+          : '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>'
+      }</div>
+      ${title ? `<h3 class="dlg-title">${escapeHtml(title)}</h3>` : ""}
+      <p class="dlg-message">${escapeHtml(message)}</p>
+      <div class="dlg-actions">${actionsHtml}</div>
+    </div>`;
+    root.appendChild(backdrop);
+    requestAnimationFrame(() => backdrop.classList.add("show"));
+    function close(value) {
+      backdrop.classList.remove("show");
+      setTimeout(() => backdrop.remove(), 200);
+      resolve(value);
+    }
+    backdrop.querySelectorAll(".dlg-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const idx = parseInt(btn.getAttribute("data-idx"), 10);
+        close(actions[idx].value);
+      });
+    });
+    backdrop.addEventListener("click", (e) => {
+      if (e.target === backdrop) close(false);
+    });
+  });
+}
+
+function confirmDialog(message, opts = {}) {
+  return showDialog({
+    title: opts.title || "Please Confirm",
+    message,
+    type: opts.type || "warning",
+    actions: [
+      {
+        label: opts.cancelText || "Cancel",
+        value: false,
+        style: "secondary",
+      },
+      {
+        label: opts.confirmText || "Confirm",
+        value: true,
+        style: opts.danger ? "danger" : "primary",
+      },
+    ],
+  });
+}
+
 function formatMessageDate(dateStr) {
   if (!dateStr) return "";
   const d = new Date(dateStr);
@@ -170,7 +287,7 @@ function renderBookings() {
 
   if (!bookings.length) {
     tbody.innerHTML =
-      '<tr><td colspan="5" class="empty-state">No bookings yet.</td></tr>';
+      '<tr><td colspan="6" class="empty-state">No bookings yet.</td></tr>';
     totalBookingsSpan.innerText = "0";
     totalRevenueSpan.innerText = "0";
     return;
@@ -180,9 +297,11 @@ function renderBookings() {
   const rows = bookings
     .map((booking) => {
       totalRevenue += booking.totalPrice || 0;
+      const guests = booking.guests || 1;
       return `<tr>
               <td>${escapeHtml(booking.userName || "Guest")}</td>
               <td>${escapeHtml(booking.roomType || "—")}</td>
+              <td>${guests} Guest${guests > 1 ? "s" : ""}</td>
               <td>${booking.checkIn || "—"}</td>
               <td>${booking.checkOut || "—"}</td>
               <td><strong>R${booking.totalPrice || 0}</strong></td>
@@ -273,9 +392,17 @@ function updateAdminCredentials(email, newPassword) {
   return true;
 }
 
-function adminLogout() {
+async function adminLogout() {
+  const confirmed = await confirmDialog(
+    "You'll need to sign in again to access the admin panel.",
+    { title: "Log Out?", confirmText: "Log Out", cancelText: "Stay" }
+  );
+  if (!confirmed) return;
   localStorage.removeItem(STORAGE_KEYS.ADMIN_SESSION);
-  window.location.href = "index.html";
+  toast("You have been logged out.", "success", 1400);
+  setTimeout(() => {
+    window.location.href = "index.html";
+  }, 400);
 }
 
 function initTabs() {
@@ -398,7 +525,11 @@ function renderRoomsList() {
       <div class="room-item-info">
         <h4>${escapeHtml(room.title)}</h4>
         <div class="room-category">${escapeHtml(room.category)}</div>
-        <div class="room-price">${room.price} / night</div>
+        <div class="room-price">R${
+          room.priceSingle ?? room.priceNum
+        } (1 guest) &middot; R${
+        room.priceDouble ?? room.priceNum
+      } (2 guests) / night</div>
       </div>
       <div class="room-item-actions">
         <button class="edit-room" data-id="${room.id}">Edit</button>
@@ -419,14 +550,15 @@ function renderRoomsList() {
   });
 
   document.querySelectorAll(".delete-room").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
+    btn.addEventListener("click", async (e) => {
       const id = btn.getAttribute("data-id");
-      if (
-        confirm(
-          "Are you sure you want to delete this room? This action cannot be undone."
-        )
-      ) {
+      const confirmed = await confirmDialog(
+        "This action cannot be undone. The room will be permanently removed.",
+        { title: "Delete This Room?", confirmText: "Delete", danger: true }
+      );
+      if (confirmed) {
         deleteRoomById(id);
+        toast("Room deleted.", "success");
       }
     });
   });
@@ -459,7 +591,10 @@ function fillRoomForm(room) {
   if (room) {
     document.getElementById("roomTitle").value = room.title || "";
     document.getElementById("roomCategory").value = room.category || "";
-    document.getElementById("roomPriceNum").value = room.priceNum || "";
+    document.getElementById("roomPriceSingle").value =
+      room.priceSingle || room.priceNum || "";
+    document.getElementById("roomPriceDouble").value =
+      room.priceDouble || room.priceNum || "";
     document.getElementById("roomDescription").value = room.description || "";
     document.getElementById("roomBathroom").value = (room.bathroom || []).join(
       "\n"
@@ -472,7 +607,8 @@ function fillRoomForm(room) {
   } else {
     document.getElementById("roomTitle").value = "";
     document.getElementById("roomCategory").value = "";
-    document.getElementById("roomPriceNum").value = "";
+    document.getElementById("roomPriceSingle").value = "";
+    document.getElementById("roomPriceDouble").value = "";
     document.getElementById("roomDescription").value = "";
     document.getElementById("roomBathroom").value = "";
     document.getElementById("roomFacilities").value = "";
@@ -534,14 +670,36 @@ async function handleImageFiles(files) {
 function saveRoomFromForm() {
   const title = document.getElementById("roomTitle").value.trim();
   const category = document.getElementById("roomCategory").value.trim();
-  const priceNum = parseFloat(document.getElementById("roomPriceNum").value);
+  const priceSingle = parseFloat(
+    document.getElementById("roomPriceSingle").value
+  );
+  const priceDouble = parseFloat(
+    document.getElementById("roomPriceDouble").value
+  );
   const description = document.getElementById("roomDescription").value.trim();
   const bathroomText = document.getElementById("roomBathroom").value;
   const facilitiesText = document.getElementById("roomFacilities").value;
 
-  if (!title || !category || isNaN(priceNum) || priceNum <= 0 || !description) {
-    alert(
-      "Please fill in all required fields (Title, Category, Price, Description)."
+  if (
+    !title ||
+    !category ||
+    isNaN(priceSingle) ||
+    priceSingle <= 0 ||
+    isNaN(priceDouble) ||
+    priceDouble <= 0 ||
+    !description
+  ) {
+    toast(
+      "Please fill in all required fields, including both occupancy prices.",
+      "error"
+    );
+    return false;
+  }
+
+  if (priceDouble < priceSingle) {
+    toast(
+      "The 2-guest price should not be lower than the 1-guest price.",
+      "error"
     );
     return false;
   }
@@ -554,7 +712,7 @@ function saveRoomFromForm() {
     .filter((line) => line.trim() !== "");
   const images = [...tempImageFiles];
   if (images.length === 0) {
-    alert("Please add at least one image for the room.");
+    toast("Please add at least one image for the room.", "error");
     return false;
   }
 
@@ -567,8 +725,10 @@ function saveRoomFromForm() {
     id: roomId,
     title: title,
     category: category,
-    price: `R${priceNum}`,
-    priceNum: priceNum,
+    price: `R${priceSingle}`,
+    priceNum: priceSingle,
+    priceSingle: priceSingle,
+    priceDouble: priceDouble,
     image: images[0],
     images: images,
     description: description,
@@ -637,9 +797,11 @@ function initRoomManagement() {
   if (roomForm) {
     roomForm.addEventListener("submit", (e) => {
       e.preventDefault();
+      const wasEditing = !!currentEditingRoomId;
       if (saveRoomFromForm()) {
         document.getElementById("roomModalOverlay").classList.add("hidden");
         renderRoomsList();
+        toast(wasEditing ? "Room updated." : "Room added.", "success");
       }
     });
   }
