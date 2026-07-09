@@ -918,7 +918,7 @@ function renderRoomModal(room) {
   }<div class="room-category-badge">${room.category}</div></div>
                       <div class="room-modal-info"><h2>${
                         room.title
-                      }</h2><p class="room-price">R${priceSingle} <span class="price-sep">/ 1 Guest</span> &middot; R${priceDouble} <span class="price-sep">/ 2 Guests</span> &middot; per Night</p><div style="margin-bottom:2rem;"><p style="font-size:.875rem;color:rgba(26,26,26,.65);line-height:1.7;">${
+                      }</h2><p class="room-price">R${priceSingle} <span class="price-sep">/ 1 Guest</span> &middot; R${priceDouble} <span class="price-sep">/ 2 Guests</span></p><div style="margin-bottom:2rem;"><p style="font-size:.875rem;color:rgba(26,26,26,.65);line-height:1.7;">${
     room.description
   }</p></div>
                       <div class="amenities-cols"><div><p class="amenities-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 22H4a2 2 0 0 1-2-2v-1a3 3 0 0 1 3-3h1"/><path d="M7 22h10"/><path d="M17 22h3a2 2 0 0 0 2-2v-1a3 3 0 0 0-3-3h-1"/><rect x="9" y="10" width="6" height="10"/><circle cx="12" cy="7" r="3"/></svg> Bathroom Amenities</p><ul class="amenities-list">${bathItems}</ul></div>
